@@ -1,58 +1,37 @@
 /* The clock the application reads.
 
    Every pickup window in the catalogue is a pair of strings — '17:00' to
-   '19:00' — and until now nothing ever compared them to a real time. That made
-   the whole premise decorative: an order could be collected at three in the
-   morning, a window that shut two hours ago looked exactly like one shutting
-   in ten minutes, and nothing ever expired. Food that expires tonight is the
-   entire product, so the product has to know what time it is.
+   '19:00' — and they only mean anything if something compares them to a real
+   time. Without that the whole premise is decorative: an order could be
+   collected at three in the morning, a window that shut two hours ago looks
+   exactly like one shutting in ten minutes, and nothing ever expires. Food
+   that expires tonight is the entire product, so the product knows what time
+   it is.
 
-   It is a demo clock rather than `new Date()` for one practical reason: a
-   reviewer opens the file when they open it. At eleven in the morning every
-   window is upcoming and nothing is collectable; at midnight everything is
-   shut. Either way they see the least interesting version of the app. So the
-   clock starts inside the trading day, runs forward in real time from there,
-   and can be pushed around — which turns "windows close" from a claim into
-   something a reviewer can watch happen.
-
-   For production, delete `base`, `nudge` and `reset`, and make `nowMinutes`
-   return the real wall clock. Nothing else here changes. */
+   That time is the device's own clock. There is no demo offset and nothing to
+   push around: the app is as open or as shut as the shops actually are. The
+   one seam is `setMinutes`, which the tests use to stand at a chosen hour. */
 
 // Minutes since midnight, which is all any window comparison needs. No window
 // in the catalogue crosses midnight, and the arithmetic below assumes that.
 export const DAY = 24 * 60;
 
-/* Quarter to six: Little Loaf and Orchard Café are open, Orchard is inside its
-   last hour, Seoul Street and Steppe Table open shortly, Sansar has just shut
-   and Blue Sky has not started. One glance shows every state a window has. */
-export const DEMO_START = 17 * 60 + 45;
-
-// Outside these hours the catalogue has nothing open, so a real clock would
-// only ever show a reviewer an empty shop.
-const TRADING = [13 * 60, 22 * 60 + 30];
-
+/* Seconds are folded in so the value is fractional. A countdown rounds to the
+   minute, and without the seconds it would round the same way either side of
+   a minute boundary and appear to stick. */
 function realMinutes() {
   const at = new Date();
-  return at.getHours() * 60 + at.getMinutes();
+  return at.getHours() * 60 + at.getMinutes() + at.getSeconds() / 60;
 }
 
-function openingMinutes() {
-  const real = realMinutes();
-  return real >= TRADING[0] && real <= TRADING[1] ? real : DEMO_START;
-}
-
-let base = openingMinutes();
+/* null means "follow the device", which is every case but a test. */
+let base = null;
 let startedAt = Date.now();
 const listeners = new Set();
 
-/* Time of day in minutes, advancing in real time from wherever the demo was
-   last set. Fractional, so a countdown crosses a minute boundary cleanly. */
 export function nowMinutes() {
+  if (base === null) return realMinutes();
   return (base + (Date.now() - startedAt) / 60000) % DAY;
-}
-
-export function isSimulated() {
-  return Math.abs(nowMinutes() - realMinutes()) > 2;
 }
 
 function announce() {
@@ -72,20 +51,19 @@ export function subscribe(listener) {
   };
 }
 
-export function nudge(deltaMinutes) {
-  base = (((base + (Date.now() - startedAt) / 60000 + deltaMinutes) % DAY) + DAY) % DAY;
-  startedAt = Date.now();
-  announce();
-}
-
+/* Test seam. Standing the clock at a fixed hour is the only way to assert on
+   a window opening, closing or expiring without waiting for the day to reach
+   it. Production code reads the device clock and never calls this. */
 export function setMinutes(minutes) {
   base = ((minutes % DAY) + DAY) % DAY;
   startedAt = Date.now();
   announce();
 }
 
-export function reset() {
-  setMinutes(openingMinutes());
+// Hands the clock back to the device, undoing a test's setMinutes.
+export function useDeviceClock() {
+  base = null;
+  announce();
 }
 
 export function parseTime(value) {

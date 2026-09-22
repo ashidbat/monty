@@ -1,15 +1,16 @@
-/* Where you are, in a preview that cannot know.
+/* Where you are.
 
-   Nothing here touches navigator.geolocation. A design prototype should not
-   ask for a permission it has no way to honour, and a reviewer opening the
-   file in Hamburg or Seoul still needs "nearby" to mean something. So the
-   reader picks a spot in Ulaanbaatar, or asks for a simulated fix, and every
-   distance on every screen is then computed from it with real arithmetic
-   against real coordinates. The shop is where the shop is; only the reader is
-   pretend, and the interface says so wherever it shows a distance.
+   The device knows, so the app asks it. navigator.geolocation is the source,
+   and every distance on every screen is computed from that fix with real
+   arithmetic against real coordinates.
 
-   A production build replaces `locate()` with the real thing and changes
-   nothing else. */
+   Two things stop that being the whole story, and both are ordinary rather
+   than exceptional. The permission can be refused. And this file is meant to
+   be opened from disk, where a browser hands out no position at all, because
+   a file:// page has no origin to attach the grant to. Either way `locate()`
+   settles on a simulated fix near the square so that "nearby" still means
+   something, and marks it `simulated` so the interface can say which one the
+   reader is looking at rather than quietly inventing a position. */
 
 import { t } from './i18n.js';
 
@@ -65,19 +66,103 @@ export function withinRadius(metres, radius) {
   return !radius || metres <= radius;
 }
 
-/* A simulated fix. The jitter is what makes it read as a measurement rather
-   than a menu choice: you land near the square, not exactly on it, and the map
-   draws the accuracy ring that goes with it. */
-export function locate() {
+/* A simulated fix, used when the device will not give a real one. The jitter
+   is what makes it read as a measurement rather than a menu choice: you land
+   near the square, not exactly on it, and the map draws the accuracy ring that
+   goes with it. */
+export function simulatedFix(reason = 'unsupported') {
   const spread = 0.0016;
   return {
     id: 'here',
     key: 'place.here',
-    en: 'Your demo location',
+    en: 'Your location',
     lat: DEFAULT_PLACE.lat + (Math.random() - 0.5) * spread,
     lng: DEFAULT_PLACE.lng + (Math.random() - 0.5) * spread * 1.5,
     accuracy: 40 + Math.round(Math.random() * 80),
+    simulated: true,
+    reason,
   };
+}
+
+export function geolocationAvailable() {
+  return typeof navigator !== 'undefined' && 'geolocation' in navigator;
+}
+
+/* enableHighAccuracy because the difference between two bakeries is a few
+   hundred metres. maximumAge lets a fix from the last minute stand rather than
+   waking the radio up again for a screen that has not moved. */
+const FIX_OPTIONS = { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 };
+
+function toPlace(position) {
+  return {
+    id: 'here',
+    key: 'place.here',
+    en: 'Your location',
+    lat: position.coords.latitude,
+    lng: position.coords.longitude,
+    accuracy: Math.round(position.coords.accuracy) || 0,
+    simulated: false,
+    reason: null,
+  };
+}
+
+function reasonFor(error) {
+  if (error?.code === 1) return 'denied';
+  if (error?.code === 3) return 'timeout';
+  return 'unavailable';
+}
+
+/* Resolves rather than rejects. Every caller wants a position to draw the
+   screen with, and a refused permission is a normal answer here, not a fault:
+   the simulated fix is the answer, and `reason` says why it is the one. */
+export function locate() {
+  return new Promise(resolve => {
+    if (!geolocationAvailable()) { resolve(simulatedFix('unsupported')); return; }
+    navigator.geolocation.getCurrentPosition(
+      position => resolve(toPlace(position)),
+      error => resolve(simulatedFix(reasonFor(error))),
+      FIX_OPTIONS,
+    );
+  });
+}
+
+/* Asks the browser what it would do before anything asks it to do it. A grant
+   already given is the case worth knowing about: it means the fix can arrive
+   on load without a prompt nobody asked for. */
+export async function permissionState() {
+  if (!geolocationAvailable()) return 'unsupported';
+  try {
+    const status = await navigator.permissions.query({ name: 'geolocation' });
+    return status.state;
+  } catch {
+    /* Permissions is missing or refuses the query — Safari has done both. The
+       honest answer is that we do not know, which callers treat as 'prompt'. */
+    return 'unknown';
+  }
+}
+
+/* Keeps the fix current the way the clock keeps the time current: the reader
+   walks, the distances follow, and nothing has to be pressed. Returns an
+   unsubscribe for the effect that owns it. */
+export function watchLocation(onFix) {
+  if (!geolocationAvailable()) return () => {};
+  const id = navigator.geolocation.watchPosition(
+    position => onFix(toPlace(position)),
+    () => {},
+    FIX_OPTIONS,
+  );
+  return () => navigator.geolocation.clearWatch(id);
+}
+
+/* Every shop in the catalogue is in Ulaanbaatar. A reader opening this in
+   Hamburg gets a true fix that is five thousand kilometres from all of them,
+   and a 5 km radius would hand them an empty screen and no way to guess why.
+   Sixty kilometres is generous enough to cover the city and the ger districts
+   around it without calling Darkhan local. */
+const CITY_RANGE = 60000;
+
+export function isInCity(place) {
+  return metresBetween(DEFAULT_PLACE, place) <= CITY_RANGE;
 }
 
 export function placeName(place) {

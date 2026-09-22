@@ -236,7 +236,7 @@ export default function Operations({ role, state, setState, onExit, notify, plac
     <div className="ops-demo">{t('ops.demo', 'Demo workspace · no real payments')}</div>
     <div className="ops-shell">
       <div className="ops-topline"><Wordmark small />
-        <span className="ops-clock"><Icon name="clock" size={15} />{t('ops.clock', 'Demo time {time} · day {day}', { time: formatTime(minutes), day: state.day ?? 1 })}</span>
+        <span className="ops-clock"><Icon name="clock" size={15} />{t('ops.clock', 'Local time {time} · day {day}', { time: formatTime(minutes), day: state.day ?? 1 })}</span>
         {onNewDay && <button className="ops-newday" onClick={onNewDay}><Icon name="sunrise" size={16} />{t('ops.newday', 'Start tomorrow')}</button>}
         <button className="ops-back" onClick={onExit}>{t('ops.back', 'Back to the customer app')}</button></div>
       <header className="ops-heading"><div><h1>{isAdmin ? t('ops.admin.title', 'A little care, behind the scenes.') : t('ops.merchant.title', 'Your little shop, on Monty.')}</h1><p>{isAdmin ? t('ops.admin.subtitle', 'A clear view of the shops, food and pickups in this demo.') : t('ops.merchant.subtitle', 'Put today’s good food on the counter. We’ll help it find a home.')}</p></div>{!isAdmin && <label className="ops-field ops-shop-picker">{t('ops.shop.picker', 'Shop preview')}<select value={merchantId} onChange={event => { setMerchantId(event.target.value); setDraft(null); setError(''); setPickupError(''); setPickupSuccess(''); setPickupCode(''); }}>{merchants.map(merchant => <option key={merchant.id} value={merchant.id}>{shopName(merchant)}</option>)}</select></label>}</header>

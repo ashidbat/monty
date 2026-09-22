@@ -34,6 +34,7 @@ await build({
       "export { setLocale } from './src/i18n.js';",
       "export { default as Operations } from './src/Operations.jsx';",
       "export { createDemoState } from './src/model.mjs';",
+      "export { setMinutes } from './src/clock.mjs';",
       "export { default as Payment } from './src/components/Payment.jsx';",
     ].join('\n'),
     resolveDir: root,
@@ -51,7 +52,15 @@ await build({
 });
 
 // On Windows an absolute path is not a valid ESM specifier; it has to be a URL.
-const { App, setLocale, Operations, createDemoState, Payment } = await import(pathToFileURL(path.join(workDir, 'app.mjs')).href);
+const { App, setLocale, Operations, createDemoState, Payment, setMinutes } = await import(pathToFileURL(path.join(workDir, 'app.mjs')).href);
+
+/* The application reads the device clock, so left alone this check would pass
+   or fail according to the hour someone happens to run it — "Closes in" only
+   exists inside a window's last forty-five minutes. Standing the clock at the
+   same quarter to six the workspace checks below already use makes every
+   window state render deterministically. */
+const EVENING = 17 * 60 + 45;
+setMinutes(EVENING);
 
 const checks = [
   ['en', ['Fresh finds nearby', 'Discover', 'Pickups', 'Your bag', 'Demo', 'monty', 'Shops near you', 'Steppe Table', 'Show more finds', 'min walk', 'Closes in', 'countdown']],
@@ -78,6 +87,56 @@ for (const [locale, expected] of checks) {
   }
 }
 
+/* Every screen behind the bottom nav, not just the one that opens first.
+   Discover was the only tab this check ever rendered, and the profile spent a
+   release throwing on a const it read before the declaration — invisible here,
+   and a blank screen for anyone who tapped You. */
+setLocale('en');
+for (const [tab, expected] of [
+  ['discover', ['Fresh finds nearby']],
+  ['saved', ['Saved']],
+  ['pickups', ['Your pickups']],
+  ['you', ['Appearance', 'Language', 'Local time', 'Your little companion', 'Where you are']],
+]) {
+  try {
+    const html = renderToStaticMarkup(React.createElement(App, { initialTab: tab }));
+    const missing = expected.filter(text => !html.includes(text));
+    if (missing.length) {
+      console.error(`FAIL tab ${tab}: rendered, but without ${missing.map(text => JSON.stringify(text)).join(', ')}`);
+      failures += 1;
+    } else {
+      console.log(`ok   tab ${tab}: renders with its own copy`);
+    }
+  } catch (error) {
+    console.error(`FAIL tab ${tab}: threw while rendering — ${error.message}`);
+    failures += 1;
+  }
+}
+
+/* The sheets behind a tap. A modal that throws is invisible to a check that
+   only ever renders the screen underneath it. */
+setLocale('en');
+for (const [name, expected] of [
+  ['location', ['Where you are', 'Use my location', 'Or stand somewhere else', 'How far will you walk?', 'Districts']],
+  ['filters', ['Your kind of good', 'Nearby', 'Lowest price']],
+  ['how', ['Find something good', 'Pay before pickup']],
+  ['reset', ['A fresh little start?']],
+]) {
+  try {
+    const html = renderToStaticMarkup(React.createElement(App, { initialModal: name }));
+    const missing = expected.filter(text => !html.includes(text));
+    if (missing.length) {
+      console.error(`FAIL sheet ${name}: rendered, but without ${missing.map(text => JSON.stringify(text)).join(', ')}`);
+      failures += 1;
+    } else {
+      console.log(`ok   sheet ${name}: renders with its own copy`);
+    }
+  } catch (error) {
+    console.error(`FAIL sheet ${name}: threw while rendering — ${error.message}`);
+    failures += 1;
+  }
+}
+
 // A Mongolian screen still showing "Fresh finds nearby" is the specific failure
 // this work set out to prevent, so it gets its own check.
 setLocale('mn');
@@ -91,7 +150,7 @@ for (const leftover of ['Fresh finds nearby', 'Pick up a little happiness today.
 /* The merchant and operations workspaces sit behind a role switch, so they get
    rendered directly here. The overview panel was rebuilt most recently, which
    makes it the likeliest of the three to be broken. */
-for (const [role, expected] of [['admin', ['Items rescued from waste', 'Collection rate', 'Today’s demo activity', 'Demo time']], ['merchant', ['On Little Loaf’s counter', 'Add an item', 'Items on the counter', 'Recovered today', 'Start tomorrow']]]) {
+for (const [role, expected] of [['admin', ['Items rescued from waste', 'Collection rate', 'Today’s demo activity', 'Local time']], ['merchant', ['On Little Loaf’s counter', 'Add an item', 'Items on the counter', 'Recovered today', 'Start tomorrow']]]) {
   setLocale('en');
   try {
     const html = renderToStaticMarkup(React.createElement(Operations, {
@@ -100,7 +159,7 @@ for (const [role, expected] of [['admin', ['Items rescued from waste', 'Collecti
       setState: () => {},
       onExit: () => {},
       notify: () => {},
-      minutes: 17 * 60 + 45,
+      minutes: EVENING,
       onNewDay: () => {},
     }));
     const missing = expected.filter(text => !html.includes(text));

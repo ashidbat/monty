@@ -2,7 +2,7 @@ import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import {merchants, createDemoState, totals, addToCart, placeOrder, toggleSaved, expireOrders, rateOrder, shopRating, startNewDay, offerState, isBuyable, STATE_VERSION} from './model.mjs';
 import {DISTRICTS} from './catalogue.mjs';
-import {PLACES, RADII, DEFAULT_PLACE, DEFAULT_RADIUS, locate, metresBetween, formatDistance, walkMinutes, withinRadius, placeName} from './geo.mjs';
+import {PLACES, RADII, DEFAULT_PLACE, DEFAULT_RADIUS, locate, permissionState, watchLocation, isInCity, metresBetween, formatDistance, walkMinutes, withinRadius, placeName} from './geo.mjs';
 import {qrPath} from './qr.mjs';
 import {money, date, t} from './i18n.js';
 import {offerTitle, offerDescription, shopName, shopAddress, shopKind, shopPickupNote, allergenName, lineTitle} from './content.js';
@@ -16,7 +16,7 @@ import MiniMap from './components/MiniMap.jsx';
 import {PETS, petName, petTrait} from './pets.js';
 import {FoodPhoto, Modal, Stepper, ThemeControl, LanguageControl} from './components/Controls.jsx';
 import {isDrawing} from './photos.js';
-import {nowMinutes, formatTime, subscribe as subscribeClock, nudge as nudgeClock, reset as resetClock, isSimulated, windowState} from './clock.mjs';
+import {nowMinutes, formatTime, subscribe as subscribeClock, windowState} from './clock.mjs';
 import Payment from './components/Payment.jsx';
 import Countdown, {windowLabel} from './components/Countdown.jsx';
 import {ShopRating, RateOrder} from './components/Rating.jsx';
@@ -152,13 +152,16 @@ function ShopChip({shop, metres, count, chosen, onClick}) {
   </button>;
 }
 
-function App() {
+/* initialTab only exists so the render check can reach the screens behind the
+   bottom nav. The profile shipped blank once because nothing but Discover was
+   ever rendered outside a browser. */
+function App({initialTab = 'discover', initialModal = null} = {}) {
   const [state, setState] = useState(readState);
   const [theme, setTheme] = useState(preferences.theme);
   const [locale, setLocaleState] = useState(preferences.locale);
   const [pet, setPet] = useState(preferences.pet);
   const [role, setRole] = useState('customer');
-  const [tab, setTab] = useState('discover');
+  const [tab, setTab] = useState(initialTab);
   const [page, setPage] = useState(null);
   const [cart, setCart] = useState([]);
   const [category, setCategory] = useState('All food');
@@ -169,9 +172,11 @@ function App() {
   const [district, setDistrict] = useState('all');
   const [shopFilter, setShopFilter] = useState(null);
   const [locating, setLocating] = useState(false);
+  const [following, setFollowing] = useState(false);
+  const [fixReason, setFixReason] = useState(null);
   const [mapShop, setMapShop] = useState(null);
   const [visible, setVisible] = useState(PAGE);
-  const [modal, setModal] = useState(null);
+  const [modal, setModal] = useState(initialModal);
   const [toast, setToast] = useState('');
   const [qty, setQty] = useState(1);
   const [busy, setBusy] = useState(false);
@@ -183,7 +188,7 @@ function App() {
   const shopRail = useRef(null);
   const categoryRail = useRef(null);
   const toastTimer = useRef(null);
-  const locateTimer = useRef(null);
+  const alive = useRef(true);
   const checkoutLock = useRef(false);
   const discover = role === 'customer' && !page && tab === 'discover';
   useDiscoveryMotion(scroll, discover);
@@ -212,7 +217,7 @@ function App() {
      list telling the same story. */
   useEffect(() => { setState(current => expireOrders(current, minutes)); }, [minutes]);
   useEffect(() => { scroll.current?.scrollTo({top: 0, behavior: 'instant'}); }, [page, tab, role]);
-  useEffect(() => () => { clearTimeout(toastTimer.current); clearTimeout(locateTimer.current); }, []);
+  useEffect(() => () => { clearTimeout(toastTimer.current); alive.current = false; }, []);
   // On 'system' the resolved background changes under us, so theme-color needs
   // recomputing when the device flips, not only when the reader picks.
   useEffect(() => (theme === 'system' ? watchSystemTheme(() => applyTheme('system')) : undefined), [theme]);
@@ -251,23 +256,58 @@ function App() {
   function openBag() { transition(() => setPage({type: 'bag'})); }
   function save(id) { setState(current => toggleSaved(current, id)); }
 
-  /* The pause is the honest part. A real fix takes a moment, and a control
-     that resolves instantly teaches the reader it is doing nothing. */
-  function findMe() {
-    if (locating) return;
-    setLocating(true);
-    clearTimeout(locateTimer.current);
-    locateTimer.current = setTimeout(() => {
-      const fix = locate();
-      setLocating(false);
-      setPlace(fix);
-      setDistrict('all');
-      setMapShop(null);
-      notify(t('toast.located', 'Found you near {place}. Distances are updated.', {place: t('place.square', 'Sükhbaatar Square')}));
-    }, 1100);
+  /* One place where a fix becomes the screen, so a position arriving on load,
+     a position arriving from the watcher and a position the reader asked for
+     all land the same way. */
+  function applyFix(fix, announce) {
+    setPlace(fix);
+    setFixReason(fix.reason ?? null);
+    setDistrict('all');
+    setMapShop(null);
+    /* A true fix outside Ulaanbaatar is thousands of kilometres from every
+       shop in the catalogue, and the default 5 km radius would leave a blank
+       screen with no way to guess why. Opening the radius keeps the city
+       visible and still sorts it nearest-first, which is the honest reading of
+       "nearby" from somewhere that has no nearby. */
+    if (!fix.simulated && !isInCity(fix)) setRadius(0);
+    if (!announce) return;
+    if (fix.simulated) notify(t('toast.located.demo', 'No location from your browser, so Monty is standing near {place}.', {place: t('place.square', 'Sükhbaatar Square')}));
+    else notify(t('toast.located', 'Found you. Distances are updated.'));
   }
 
+  async function findMe(announce = true) {
+    if (locating) return;
+    setLocating(true);
+    const fix = await locate();
+    if (!alive.current) return;
+    setLocating(false);
+    applyFix(fix, announce);
+    // Only a real fix is worth watching; a simulated one never moves.
+    setFollowing(!fix.simulated);
+  }
+
+  /* Location follows the device the way the clock follows it. A permission
+     already granted needs no button, so the fix arrives on load and the reader
+     simply sees real distances. A permission not yet granted is left alone:
+     browsers want a gesture before the prompt, and a prototype that throws a
+     location dialog at someone the moment they open it has earned the refusal
+     it gets. */
+  useEffect(() => {
+    let live = true;
+    permissionState().then(state => { if (live && state === 'granted') findMe(false); });
+    return () => { live = false; };
+  }, []);
+
+  // While following, the reader walking is enough to update every distance.
+  useEffect(() => {
+    if (!following) return undefined;
+    return watchLocation(fix => { if (alive.current) applyFix(fix, false); });
+  }, [following]);
+
   function choosePlace(next) {
+    // Standing somewhere by hand is a decision; stop overwriting it.
+    setFollowing(false);
+    setFixReason(null);
     setPlace(next);
     setDistrict('all');
     setMapShop(null);
@@ -513,7 +553,7 @@ function App() {
       <section className="profile-preferences">
         <div className="preference-row"><span><Icon name="auto" size={18}/>{t('pref.theme', 'Appearance')}</span><ThemeControl value={theme} onChange={chooseTheme}/></div>
         <div className="preference-row"><span><Icon name="globe" size={18}/>{t('pref.language', 'Language')}</span><LanguageControl value={locale} onChange={chooseLanguage}/></div>
-        <div className="preference-row is-clock"><span><Icon name="clock" size={18}/>{t('clock.label', 'Demo time')}{isSimulated() && <small>{t('clock.simulated', 'Simulated, so the shops are open')}</small>}</span>{clockControl}</div>
+        <div className="preference-row is-clock"><span><Icon name="clock" size={18}/>{t('clock.label', 'Local time')}<small>{t('clock.device', 'Pickup windows follow your device clock')}</small></span>{clockControl}</div>
       </section>
       <div className="profile-links">
       <button onClick={() => setModal('location')}><Icon name="pin"/><span>{t('you.link.area', 'Where you are')}<small>{placeName(place)} · {labelFor(DISTRICTS, district)}</small></span><Icon name="arrow" size={18}/></button>
@@ -528,7 +568,7 @@ function App() {
     const chosenMetres = chosen ? distanceTo(chosen.id) : 0;
     return <Modal title={t('modal.location.title', 'Where you are')} onClose={() => setModal(null)}>
       <div className="location-sheet">
-        <p className="modal-description">{t('modal.location.body', 'Monty measures every distance from here. Nothing is sent anywhere, and your real position is never read.')}</p>
+        <p className="modal-description">{t('modal.location.body', 'Monty measures every distance from here. Your position stays in this browser and is never sent anywhere.')}</p>
         <MiniMap centre={place} shops={merchants} radius={radius} selected={mapShop} accuracy={place.accuracy || 0} onSelect={id => setMapShop(id === mapShop ? null : id)}/>
         {chosen
           ? <div className="map-detail">
@@ -537,9 +577,21 @@ function App() {
           </div>
           : <p className="map-hint">{t('map.hint', 'Tap a pin to see the shop. You are the dot in the middle.')}</p>}
 
-        <button className={`locate-button ${locating ? 'is-busy' : ''}`} onClick={findMe} disabled={locating}>
-          <Icon name="target" size={19}/>{locating ? t('location.locating', 'Finding you…') : t('location.use', 'Use my demo location')}
+        <button
+          className={`locate-button ${locating ? 'is-busy' : ''} ${following ? 'is-following' : ''}`}
+          onClick={() => (following ? setFollowing(false) : findMe())}
+          disabled={locating}
+          aria-pressed={following}
+        >
+          <Icon name={following ? 'target' : 'target'} size={19}/>
+          {locating ? t('location.locating', 'Finding you…') : following ? t('location.following', 'Following your location') : t('location.use', 'Use my location')}
         </button>
+        {following && <p className="location-live"><span className="location-dot"/>{t('location.live', 'Distances update as you move. Tap again to stop.')}</p>}
+        {fixReason && <p className="location-problem"><Icon name="shield" size={15}/>{fixReason === 'denied'
+          ? t('location.denied', 'Your browser refused the location permission, so Monty is standing near Sükhbaatar Square. Allow location in your browser settings to use your own.')
+          : fixReason === 'timeout'
+            ? t('location.timeout', 'Your device took too long to find a position, so Monty is standing near Sükhbaatar Square.')
+            : t('location.unsupported', 'This browser will not share a location from a file opened off disk, so Monty is standing near Sükhbaatar Square.')}</p>}
 
         <h3 className="location-heading">{t('location.places', 'Or stand somewhere else')}</h3>
         <div className="place-grid">{PLACES.map(entry => <button key={entry.id} className={`place-option ${entry.id === place.id ? 'chosen' : ''}`} aria-pressed={entry.id === place.id} onClick={() => choosePlace(entry)}><Icon name="pin" size={16}/><span>{t(entry.key, entry.en)}</span></button>)}</div>
@@ -554,29 +606,31 @@ function App() {
             <Icon name="pin"/><span>{t(entry.key, entry.en)}<small>{t('location.shops', '{count} contracted shops', {count: shops})}</small></span>{entry.id === district && <Icon name="check" size={18}/>}
           </button>;
         })}
-        <p className="small-note">{t('modal.location.note', 'Simulated location. Live GPS is not connected in this preview, and no location is ever stored or sent.')}</p>
+        <p className="small-note">{place.simulated === false
+          ? t('modal.location.note.live', 'Your device’s own position, read in this browser only. Nothing is stored or sent, and the shops are demo shops.')
+          : t('modal.location.note', 'A demo position near Sükhbaatar Square. Nothing is stored or sent, and the shops are demo shops.')}</p>
       </div>
     </Modal>;
   }
+
+  /* A readout, not a control. The clock is the device's own, so there is
+     nothing here to set — it is shown because every window, countdown and
+     expiry on the screen is measured against it, and it helps to see the
+     number they are all being compared to.
+
+     It is declared above `content` because renderProfile puts it on the You
+     screen. `content` calls that renderer immediately, so a `const` declared
+     further down is still in its dead zone when the profile is the open tab,
+     and reading it throws rather than rendering. */
+  const clockControl = <div className="clock-control" aria-label={t('clock.label', 'Local time')}>
+    <Icon name="clock" size={15}/>
+    <strong><time aria-live="off">{formatTime(minutes)}</time></strong>
+  </div>;
 
   const screens = {discover: renderHome, pickups: renderPickups, saved: renderSaved, you: renderProfile};
   const content = page?.type === 'offer' && offer ? renderOffer() : page?.type === 'bag' ? renderBag() : page?.type === 'checkout' ? renderBag(true) : page?.type === 'pass' ? renderPass() : screens[tab]();
   const toastNode = toast && <div className={`toast ${role === 'customer' ? 'in-app' : ''}`} role="status"><Icon name="check" size={20}/><span>{toast}</span><button aria-label={t('toast.dismiss', 'Dismiss message')} onClick={() => setToast('')}><Icon name="close" size={18}/></button></div>;
   const roles = [['customer', t('role.customer', 'Customer')], ['merchant', t('role.merchant', 'Merchant')], ['admin', t('role.admin', 'Operations')]];
-
-  /* A review control, not a product one, so it lives in the review chrome
-     beside the workspace switcher — and under You as well, because that
-     header is hidden on a phone. Pushing the clock forward is the only way to
-     watch a window close, an order expire, or a day roll over without sitting
-     in front of the file for two hours. */
-  const clockControl = <div className="clock-control" role="group" aria-label={t('clock.label', 'Demo time')}>
-    <Icon name="clock" size={15}/>
-    <strong>{formatTime(minutes)}</strong>
-    <button type="button" aria-label={t('clock.back', 'Put the demo clock back an hour')} onClick={() => nudgeClock(-60)}>−1h</button>
-    <button type="button" aria-label={t('clock.forward15', 'Move the demo clock on fifteen minutes')} onClick={() => nudgeClock(15)}>+15m</button>
-    <button type="button" aria-label={t('clock.forward', 'Move the demo clock on an hour')} onClick={() => nudgeClock(60)}>+1h</button>
-    <button type="button" onClick={resetClock}>{t('clock.reset', 'Now')}</button>
-  </div>;
 
   return <><main className={`presentation ${role !== 'customer' ? 'workspace-mode' : ''}`}>
     <header className="presentation-header"><Wordmark small/><span className="prototype-label"><span/>{t('app.tagline', 'Ulaanbaatar · interactive demo')}</span>

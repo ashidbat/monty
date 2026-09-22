@@ -242,8 +242,9 @@ const catalogues = {
     // Modals
     'modal.close': 'Цонх хаах',
     'modal.location.title': 'Та хаана байна',
-    'modal.location.body': 'Monty бүх зайг эндээс хэмжинэ. Юу ч хаашаа ч илгээхгүй, таны бодит байршлыг хэзээ ч уншихгүй.',
-    'modal.location.note': 'Дүрслэсэн байршил. Энэ туршилтад бодит GPS холбогдоогүй бөгөөд байршлыг хадгалах, илгээх зүйл огт байхгүй.',
+    'modal.location.body': 'Monty бүх зайг эндээс хэмжинэ. Таны байршил зөвхөн энэ хөтөч дотор үлдэх бөгөөд хаашаа ч илгээгдэхгүй.',
+    'modal.location.note': 'Сүхбаатарын талбайн ойролцоох жишээ байршил. Юу ч хадгалагдахгүй, илгээгдэхгүй бөгөөд дэлгүүрүүд нь жишээ дэлгүүрүүд юм.',
+    'modal.location.note.live': 'Таны төхөөрөмжийн байршлыг зөвхөн энэ хөтөч дээр уншсан. Юу ч хадгалагдахгүй, илгээгдэхгүй бөгөөд дэлгүүрүүд нь жишээ дэлгүүрүүд юм.',
     'modal.filters.title': 'Танд тохирох сонголт',
     'modal.filters.body': 'Хүнсийг ингэж харуулах…',
     'modal.filters.apply': 'Олдворуудаа харах',
@@ -275,12 +276,8 @@ const catalogues = {
     'offer.closed': 'Өнөөдөрт оройтлоо',
     'offer.pickup.window': 'Очиж авах цаг {start}–{end}',
     'offer.warning.closed': 'Өнөөдрийн очиж авах хугацаа дууссан. Энэ зүйл маргааш дахин гарна.',
-    'clock.label': 'Demo цаг',
-    'clock.simulated': 'Дүрслэсэн цаг, ингэснээр дэлгүүрүүд нээлттэй байна',
-    'clock.back': 'Demo цагийг нэг цагаар ухраах',
-    'clock.forward15': 'Demo цагийг арван таван минутаар урагшлуулах',
-    'clock.forward': 'Demo цагийг нэг цагаар урагшлуулах',
-    'clock.reset': 'Одоо',
+    'clock.label': 'Одоогийн цаг',
+    'clock.device': 'Очиж авах цаг таны төхөөрөмжийн цагаар тооцогдоно',
 
     /* ---- Payment ----
        Shaped around QPay, which is how Ulaanbaatar pays. Every one of these
@@ -340,7 +337,7 @@ const catalogues = {
     'place.ardkino': 'Ард кино театрын талбай',
     'place.sansar': 'Сансарын уулзвар',
     'place.zaisan': 'Зайсан',
-    'place.here': 'Таны demo байршил',
+    'place.here': 'Таны байршил',
     'radius.1': '1 км',
     'radius.3': '3 км',
     'radius.5': '5 км',
@@ -351,7 +348,12 @@ const catalogues = {
     'district.bayangol': 'Баянгол дүүрэг',
     'district.bayanzurkh': 'Баянзүрх дүүрэг',
     'district.khanuul': 'Хан-Уул дүүрэг',
-    'location.use': 'Миний demo байршлыг ашиглах',
+    'location.use': 'Миний байршлыг ашиглах',
+    'location.following': 'Таны байршлыг дагаж байна',
+    'location.live': 'Таныг хөдлөхөд зай шинэчлэгдэнэ. Зогсоохыг хүсвэл дахин дарна уу.',
+    'location.denied': 'Таны хөтөч байршлын зөвшөөрлийг татгалзсан тул Monty Сүхбаатарын талбайн ойролцоо байна. Өөрийн байршлаа ашиглахыг хүсвэл хөтчийнхөө тохиргооноос зөвшөөрнө үү.',
+    'location.timeout': 'Таны төхөөрөмж байршлыг олоход хэт удсан тул Monty Сүхбаатарын талбайн ойролцоо байна.',
+    'location.unsupported': 'Энэ хөтөч дискнээс нээсэн файлаас байршил өгөхгүй тул Monty Сүхбаатарын талбайн ойролцоо байна.',
     'location.locating': 'Таныг олж байна…',
     'location.places': 'Эсвэл өөр газар зогсоорой',
     'location.radius': 'Хэр хол явах вэ?',
@@ -361,7 +363,8 @@ const catalogues = {
     'map.caption': 'Чиглэл, зай нь бодит. Гудамжууд нь схем бөгөөд таны байршил дүрслэл юм.',
     'map.hint': 'Дэлгүүр харахын тулд тэмдэглэгээ дээр дарна уу. Та бол голын цэг.',
     'map.browse': 'Энэ дэлгүүрийн хүнсийг үзэх',
-    'toast.located': '{place}-ын ойролцоо таныг оллоо. Зай шинэчлэгдлээ.',
+    'toast.located': 'Таныг оллоо. Зай шинэчлэгдлээ.',
+    'toast.located.demo': 'Хөтчөөс байршил аваагүй тул Monty {place}-ын ойролцоо байна.',
     'toast.place': '{place} дээр зогслоо. Зай шинэчлэгдлээ.',
 
     // Empty state default action
@@ -475,7 +478,7 @@ const catalogues = {
 
     'ops.shops.label': 'Demo дэлгүүрүүд',
     // Merchant: the clock, standing listings and the money
-    'ops.clock': 'Demo цаг {time} · {day} дэх өдөр',
+    'ops.clock': 'Одоогийн цаг {time} · {day} дэх өдөр',
     'ops.newday': 'Маргаашийг эхлүүлэх',
     'ops.tab.money': 'Мөнгө',
     'ops.stat.payout': 'Өнөөдөр нөхөгдсөн',
