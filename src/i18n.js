@@ -52,11 +52,13 @@ const catalogues = {
     'category.grocery': 'Хүнсний бараа',
 
     // Discover
-    'home.kicker': 'Сайн байна уу, хөрш өө',
-    'home.title.line1': 'Өдрийн сайхан.',
-    'home.title.line2': 'Гэрийн ойролцоо.',
-    'home.subtitle': 'Өнөөдрийн хүнс. Илүү таатай үнэ.',
-    'home.sign': 'Халамжтай хийсэн. Хаях нь хэтэрхий харамсалтай.',
+    'home.kicker.morning': 'Өглөөний мэнд, хөрш өө',
+    'home.kicker.afternoon': 'Өдрийн мэнд, хөрш өө',
+    'home.kicker.evening': 'Оройн мэнд, хөрш өө',
+    'home.title.line1': 'Өглөө хийсэн.',
+    'home.title.line2': 'Өнөө орой дуусна.',
+    'home.subtitle': 'Ойролцоох гал тогооны өнөөдрийн талх, бууз, амттан — 60 хүртэл хувийн хямдралтай.',
+    'home.sign': 'Хаяхад хэтэрхий сайн хүнс.',
     'home.search.label': 'Хүнс эсвэл дэлгүүр хайх',
     'home.search.placeholder': 'Круассан уу? Бага зэрэг кимбап уу?',
     'home.filter': 'Шүүх ба эрэмбэлэх',

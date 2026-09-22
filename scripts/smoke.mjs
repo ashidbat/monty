@@ -93,7 +93,8 @@ for (const [locale, expected] of checks) {
    and a blank screen for anyone who tapped You. */
 setLocale('en');
 for (const [tab, expected] of [
-  ['discover', ['Fresh finds nearby']],
+  // The hero's photograph is the appetite; a food app that loses it is a list.
+  ['discover', ['Fresh finds nearby', 'Made this morning.', 'Gone by tonight.', 'hero-find-title', 'hero-find-cut', 'hero-find-frame']],
   ['saved', ['Saved']],
   ['pickups', ['Your pickups']],
   ['you', ['Appearance', 'Language', 'Local time', 'Your little companion', 'Where you are']],

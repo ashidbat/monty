@@ -82,6 +82,16 @@ function nearbyOrder(offers, distanceTo) {
   return ordered;
 }
 
+/* The clock is the device's own now, so the greeting can stop guessing. It
+   used to say "Good evening" to someone opening the app over breakfast, which
+   is a small lie, and a small lie on the first line is the one a reader
+   notices. Returns the pair `t` takes, so the call site stays one expression. */
+function greeting(minutes) {
+  if (minutes < 11 * 60) return ['home.kicker.morning', 'Good morning, neighbor'];
+  if (minutes < 17 * 60) return ['home.kicker.afternoon', 'Good afternoon, neighbor'];
+  return ['home.kicker.evening', 'Good evening, neighbor'];
+}
+
 /* The clock has to reach the render tree, and every countdown on screen has
    to move together. One subscription at the top, one re-render, rather than a
    timer per card. */
@@ -410,11 +420,43 @@ function App({initialTab = 'discover', initialModal = null} = {}) {
   const filterShop = shopFilter ? shopFor(shopFilter) : null;
 
   function renderHome() {
+    /* The one find the hero puts a photograph of. It is the top of the list
+       the reader is already looking at, so the picture and the first card
+       agree with each other, and it is skipped entirely once they start
+       searching — at that point they are hunting, not browsing, and a banner
+       repeating their first result is in the way.
+
+       Two preferences, in this order. Food that can be collected right now
+       beats food that opens later: "closes in 40 minutes" is an invitation and
+       "opens at six" is a note to self. And a photograph beats a drawing,
+       because the hero's whole job is appetite and appetite comes from a
+       picture of the actual food. Each falls back rather than failing, so
+       first thing in the morning — when nothing is open yet — the banner still
+       has something to show. */
+    const collectableNow = item => ['open', 'closing'].includes(windowState(item.pickupStart, item.pickupEnd, minutes));
+    const heroFind = query || filterShop ? null : (
+      ordered.find(item => collectableNow(item) && !isDrawing(item.image))
+      || ordered.find(collectableNow)
+      || ordered.find(item => !isDrawing(item.image))
+      || ordered[0]
+    );
     return <>
       <section className="bakery-banner" aria-labelledby="discovery-title">
         <div className="awning" aria-hidden="true">{Array.from({length: 10}, (_, index) => <i key={index}/>)}</div>
-        <div className="bakery-message"><div><span className="hero-kicker">{t('home.kicker', 'Good evening, neighbor')}</span><h1 id="discovery-title">{t('home.title.line1', 'A little good.')}<br/>{t('home.title.line2', 'Close to home.')}</h1><p>{t('home.subtitle', 'Today’s food. A sweeter price.')}</p></div><div className="hero-mascot"><TalkingPet pet={pet} size={150}/></div></div>
-        <div className="bakery-sign"><Icon name="leaf" size={15}/><span>{t('home.sign', 'Made with care. Too good to spare.')}</span></div>
+        <div className="bakery-message"><div><span className="hero-kicker">{t(...greeting(minutes))}</span><h1 id="discovery-title">{t('home.title.line1', 'Made this morning.')}<br/>{t('home.title.line2', 'Gone by tonight.')}</h1><p>{t('home.subtitle', 'Today’s bread, buuz and cake from kitchens near you — up to 60% less.')}</p></div><div className="hero-mascot"><TalkingPet pet={pet} size={150}/></div></div>
+        {heroFind && <button type="button" className="hero-find" onClick={() => openOffer(heroFind)}>
+          <span className="hero-find-frame">
+            <FoodPhoto src={heroFind.image} alt={offerTitle(heroFind)} loading="eager" fetchPriority="high"/>
+            <span className="hero-find-cut">−{savingsPercent(heroFind)}%</span>
+          </span>
+          <span className="hero-find-body">
+            <span className="hero-find-shop">{shopName(shopFor(heroFind.merchantId))} · {formatDistance(distanceTo(heroFind.merchantId))}</span>
+            <strong className="hero-find-title">{offerTitle(heroFind)}</strong>
+            <span className="hero-find-prices"><b>{money(heroFind.price)}</b><s>{money(heroFind.originalPrice)}</s></span>
+            <span className={`hero-find-when is-${windowLabel(heroFind, minutes).state}`}><Icon name="clock" size={14}/>{windowLabel(heroFind, minutes).text}</span>
+          </span>
+        </button>}
+        <div className="bakery-sign"><Icon name="leaf" size={15}/><span>{t('home.sign', 'Too good to throw away.')}</span></div>
       </section>
       <div className="discover-controls">
         <div className="search-field"><Icon name="search" size={21}/><input type="search" aria-label={t('home.search.label', 'Search food or shops')} placeholder={t('home.search.placeholder', 'A croissant? A little kimbap?')} value={query} onChange={event => setQuery(event.target.value)}/><button aria-label={t('home.filter', 'Filter and sort offers')} className={`filter-button ${sort !== 'Nearby' ? 'has-filter' : ''}`} onClick={() => setModal('filters')}><Icon name="sliders" size={20}/></button></div>
