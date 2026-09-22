@@ -24,6 +24,10 @@ The ninety listings without a photograph carry an original flat-vector drawing f
 
 They are drawings and never claim otherwise: the item page says "Drawing, not a photograph: this shop has not sent one yet" wherever one is used. No generated, stock or third-party food imagery is involved, and no drawing is presented as a photograph of a real dish. `src/photos.js` resolves the three kinds of picture — a bundled photograph, a drawing name, and a link a merchant typed, which is never rewritten.
 
+## App icons
+
+The browser tab, the home screen icons and the picture a shared link shows are all the one mark in `public/assets/monty.svg`, an original drawing made for this prototype. A phone's home screen and a web app manifest will not take an SVG, so `scripts/icons.mjs` renders the PNG sizes they ask for — 192, 512, a maskable 512 for Android's own icon shapes, a 180 for iOS, and a 1200x630 card for links pasted into a chat. They are generated on every `npm run build` rather than drawn by hand, so the mark cannot drift out of step with itself. No icon font, stock icon set or third-party artwork is involved.
+
 ## Map and location
 
 `src/geo.mjs` holds the shop coordinates and the named places a reader can stand on. They are real locations in Ulaanbaatar, recorded by hand for this prototype; no map data, tiles or geocoding service is used or redistributed. Distances are computed with the haversine formula against those coordinates, so "550 m" is arithmetic rather than a string somebody typed.

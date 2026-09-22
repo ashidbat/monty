@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "start": "node scripts/dev.mjs",
-    "build": "node scripts/build.mjs && node scripts/snapshot.mjs",
+    "build": "node scripts/icons.mjs && node scripts/build.mjs && node scripts/snapshot.mjs",
     "test": "node --test --test-isolation=none tests/*.test.mjs",
     "preview": "node scripts/serve.mjs",
+    "icons": "node scripts/icons.mjs",
     "snapshot": "node scripts/snapshot.mjs",
     "smoke": "node scripts/smoke.mjs",
     "check": "npm test && npm run smoke"
