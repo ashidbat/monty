@@ -6,11 +6,11 @@
    the first two. */
 
 :root {
-  --open: #4a6e52;
-  --closing: #8a4a22;
-  --closing-bg: #f7d9c2;
-  --shut: #6b5f57;
-  --shut-bg: #e6ddd3;
+  --open: #4c7005;
+  --closing: #a92837;
+  --closing-bg: #f8d3d9;
+  --shut: #4c605f;
+  --shut-bg: #dce5e5;
   /* A rating is information, not decoration, so the star has to clear the 3:1
      floor for meaningful graphics. The old gold sat at 2.47:1 on the app
      background — legible to most people, and the first thing to disappear in

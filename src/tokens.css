@@ -34,47 +34,57 @@
   /* The arched loaf silhouette, shared by merchant rows and bag thumbnails. */
   --r-arch: 30px 30px 10px 10px;
 
-  /* ---- Colour: light ---------------------------------------------------- */
-  --bg-stage: #e6dded;
-  --bg-stage-glow: #eee8f4;
-  --bg-app: #f7ebcb;
-  --bg-surface: #fff6df;
-  --bg-surface-2: #fbefce;
-  --bg-inset: #fcf2d7;
-  --bg-accent: #e6ddf3;
-  --bg-accent-strong: #d7c7e7;
-  --bg-accent-soft: #eee1bc;
-  --bg-peach: #f4c9af;
-  --bg-pass: #ddd0eb;
-  --awning: #aa8bbd;
-  --bg-photo: #ecd8be;
-  --bg-chip: #f2eafa;
+  /* ---- Colour: light ----------------------------------------------------
+     A cold drink rather than a warm room: strawberry #d33243, pink #e07c8e,
+     lime #a9bf53, olive #718804, teal #3b9890 and mint #a0d8cd, off a tray of
+     fruit on ice. The page stays in the mint family and the loud fruit is
+     spent on the shop front, which is what stops six saturated colours
+     becoming a fruit salad. Teal takes everything you press, so the
+     strawberry is free to mean one thing: a window about to shut.
 
-  --ink: #47304f;
-  --ink-muted: #5e526d;   /* clears 4.5:1 on every surface above */
+     This is deliberately not the dark theme's bakery. Light is the morning
+     market, dark is the evening oven. Every text pairing clears AA and every
+     meaningful graphic clears 3:1; re-measure if you move a value. */
+  --bg-stage: #d1e6e2;
+  --bg-stage-glow: #e5f5f2;
+  --bg-app: #e1f4f1;
+  --bg-surface: #f3fcfa;
+  --bg-surface-2: #e9f7f4;
+  --bg-inset: #ecf9f6;
+  --bg-accent: #f7dee3;
+  --bg-accent-strong: #ecb1bd;
+  --bg-accent-soft: #e6f5f2;
+  --bg-peach: #f4c8d1;
+  --bg-pass: #f6e4e7;
+  --awning: #d33243;
+  --bg-photo: #d3e4e1;
+  --bg-chip: #ecf9f7;
 
-  --brand: #785783;       /* solid fills */
-  --brand-strong: #674773;
-  --brand-ink: #785783;   /* brand-coloured text and icons */
-  --on-brand: #fff8e9;
+  --ink: #183937;
+  --ink-muted: #436563;   /* clears 4.5:1 on every surface above */
 
-  --line: #dfd2b6;
-  --line-soft: #e2d4b7;
-  --line-accent: #cbb6d4;
-  --line-dash: #c9b6d5;
+  --brand: #29756f;       /* solid fills */
+  --brand-strong: #1d625c;
+  --brand-ink: #23706a;   /* brand-coloured text and icons */
+  --on-brand: #f7fdfc;
 
-  --bg-invert: #47304f;
-  --on-invert: #fff6df;
+  --line: #c1d7d3;
+  --line-soft: #cfe3df;
+  --line-accent: #e8c4cb;
+  --line-dash: #e2bbc3;
 
-  --ok: #4a6e52;
-  --ok-bg: #e4e6c9;
-  --warn-bg: #f4cfb9;
-  --warn-ink: #79462b;
+  --bg-invert: #1e4d49;
+  --on-invert: #f3fcfa;
 
-  --shadow-card: 0 2px 5px #47304f0c;
-  --shadow-float: 0 5px 20px #47304f33;
-  --phone-bezel: #5b435e;
-  --phone-halo: #ede6f0;
+  --ok: #4c7005;
+  --ok-bg: #e7eed3;
+  --warn-bg: #f8d8dd;
+  --warn-ink: #8c212f;
+
+  --shadow-card: 0 2px 5px #0e2b2912;
+  --shadow-float: 0 5px 20px #0e2b2933;
+  --phone-bezel: #366360;
+  --phone-halo: #e2f3f0;
 
   font-family: var(--font-body);
   color: var(--ink);
