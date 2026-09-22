@@ -1329,17 +1329,29 @@ s, del { color: var(--ink-muted) }
 }
 @media (max-width: 700px) {
   .presentation { padding: 0 16px 22px }
+  /* One screen tall, and the container is where that has to be said. The app
+     below is a flex item with a flex-basis of 0, so flex layout decides its
+     height and a height on the item itself is quietly ignored — which is why
+     dropping its max-height here used to let it grow to the length of the
+     list. Nothing then scrolled: .screen-scroll was as tall as its own
+     contents, so it had nothing to scroll, and it contains its overscroll
+     rather than chaining, so a finger on the food scrolled nothing at all.
+     The workspaces are ordinary long pages and keep their auto height. */
+  .presentation:not(.workspace-mode) {
+    height: 100vh;
+    height: 100dvh;
+  }
   .customer-app { max-height: none }
 }
 
 /* ------------------------------------------------------------------------
    Phone
-   The app fills the window instead of sitting in a card. Height comes from
-   dvh so an iOS toolbar sliding in or out resizes the app and does not push
-   the bottom bar under it, and the two ends carry the safe-area insets so
-   nothing hides behind the notch or the home indicator. html/body are left
-   scrollable: pinning them to height:100% with overflow:hidden is what breaks
-   the viewport on iOS Safari.
+   The app fills the window instead of sitting in a card. Its one screen of
+   height is set on .presentation above, in dvh, so an iOS toolbar sliding in
+   or out resizes the app and does not push the bottom bar under it; the two
+   ends carry the safe-area insets so nothing hides behind the notch or the
+   home indicator. html/body are left scrollable: pinning them to height:100%
+   with overflow:hidden is what breaks the viewport on iOS Safari.
    --------------------------------------------------------------------- */
 @media (max-width: 560px) {
   html { -webkit-text-size-adjust: 100% }
@@ -1355,8 +1367,6 @@ s, del { color: var(--ink-muted) }
   .customer-app {
     max-width: none;
     max-height: none;
-    height: 100vh;
-    height: 100dvh;
     margin: 0;
     border: 0;
     border-radius: 0;
