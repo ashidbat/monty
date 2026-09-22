@@ -71,11 +71,21 @@ function sitemap(address) {
 
 /* index.html carries %SITE_URL% wherever it needs an absolute address — the
    canonical link, the share card, the structured data — because a relative one
-   is no use to anything quoting the page somewhere else. */
-export async function writeSite(output) {
+   is no use to anything quoting the page somewhere else.
+
+   It is also where the bundle gets its real name. The source refers to plain
+   /app.js and /app.css, which is what the offline snapshot inlines and what
+   `npm start` serves; a production build passes the fingerprinted names it
+   just wrote and they are substituted here. */
+export async function writeSite(output, bundle = { js: '/app.js', css: '/app.css' }) {
   const address = siteUrl();
-  const html = await readFile(path.join(root, 'index.html'), 'utf8');
-  await writeFile(path.join(output, 'index.html'), html.replaceAll('%SITE_URL%', address), 'utf8');
+  const source = await readFile(path.join(root, 'index.html'), 'utf8');
+  let html = source.replaceAll('%SITE_URL%', address);
+  for (const [from, to] of [['href="/app.css"', `href="${bundle.css}"`], ['src="/app.js"', `src="${bundle.js}"`]]) {
+    if (!html.includes(from)) throw new Error(`index.html must reference the bundle as ${from}.`);
+    html = html.replace(from, to);
+  }
+  await writeFile(path.join(output, 'index.html'), html, 'utf8');
   await writeFile(path.join(output, 'robots.txt'), robots(address), 'utf8');
   await writeFile(path.join(output, 'sitemap.xml'), sitemap(address), 'utf8');
   return address;

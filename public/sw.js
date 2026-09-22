@@ -13,9 +13,10 @@
    The rule is network first, cache second — never the other way around for
    anything that can change. A service worker that answers from its own cache
    is the classic way to leave somebody staring at last month's build after a
-   deploy, and that is worth more than the milliseconds it would save. Only the
-   font files, whose names carry a content hash and so never change meaning,
-   are answered from the cache directly.
+   deploy, and that is worth more than the milliseconds it would save. The
+   exception is a file whose name carries a hash of its contents: the bundle
+   and the fonts can never mean anything new at the same address, so they are
+   answered from the cache directly.
 
    To retire it: delete this file and the registration in index.html, then
    deploy. Browsers unregister a worker whose script has gone. */
@@ -30,7 +31,7 @@ self.addEventListener('activate', event => {
   })());
 });
 
-const isHashedFont = url => url.pathname.endsWith('.woff2');
+const isFingerprinted = url => url.pathname.endsWith('.woff2') || /^\/app-[^/]+\.(js|css)$/.test(url.pathname);
 
 self.addEventListener('fetch', event => {
   const { request } = event;
@@ -41,7 +42,7 @@ self.addEventListener('fetch', event => {
 
   event.respondWith((async () => {
     const cache = await caches.open(CACHE);
-    if (isHashedFont(url)) {
+    if (isFingerprinted(url)) {
       const stored = await cache.match(request);
       if (stored) return stored;
     }
