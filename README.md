@@ -25,7 +25,10 @@ command, the output directory and the cache headers.
 1. Push this repository to GitHub.
 2. At [vercel.com/new](https://vercel.com/new), import it. Leave every build
    setting alone — `vercel.json` has them.
-3. Deploy. Vercel gives the project an address like `https://monty.vercel.app`.
+3. Deploy. Vercel gives the project its own address — something like
+   `https://monty-ashidbat.vercel.app`. Note that `monty.vercel.app` itself is
+   already taken by an unrelated project, so the name will have something
+   appended to it.
 
 Or, from this folder, `npx vercel --prod`.
 
@@ -45,9 +48,18 @@ order:
 | `FALLBACK_URL` in `scripts/site.mjs` | local builds |
 
 On Vercel the middle one is already right, so a plain deploy needs no
-configuration. If a custom domain is added later, set `SITE_URL` in the project's
-environment variables (or edit `FALLBACK_URL`) and redeploy, so the page stops
-pointing at the old address.
+configuration — unless **Automatically expose System Environment Variables** has
+been switched off in the project's settings, in which case set `SITE_URL`
+yourself. The fallback is a reserved example domain rather than a real one, so
+a build that lost both is obviously wrong instead of quietly pointing search
+engines at somebody else's site.
+
+Worth checking once, after the first deploy: open the deployed page, view
+source, and confirm the `canonical` link and `og:url` carry the real address.
+
+If a custom domain is added later, set `SITE_URL` in the project's environment
+variables (or edit `FALLBACK_URL`) and redeploy, so the page stops pointing at
+the old address.
 
 Preview deployments — every branch and pull request — serve a `robots.txt` that
 asks search engines to stay away, so they never compete with the real site.

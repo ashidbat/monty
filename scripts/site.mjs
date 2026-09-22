@@ -21,7 +21,14 @@ import path from 'node:path';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 
-const FALLBACK_URL = 'https://monty.vercel.app';
+/* Deliberately a reserved example domain that can never belong to anybody.
+   A canonical link is a page naming its own real home, so a fallback that
+   happens to be somebody else's live site — monty.vercel.app is already a
+   Next.js project belonging to a stranger — would hand Monty's search ranking
+   to them on any build where the two variables above are missing. Wrong and
+   obviously wrong beats wrong and plausible. Set SITE_URL, or replace this,
+   once the real address exists. */
+const FALLBACK_URL = 'https://monty.example';
 
 export function siteUrl() {
   const fromVercel = process.env.VERCEL_PROJECT_PRODUCTION_URL && `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`;
