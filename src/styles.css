@@ -1,0 +1,1292 @@
+@import url('./tokens.css');
+
+/* ========================================================================
+   Base
+   ===================================================================== */
+* { box-sizing: border-box }
+body { margin: 0; background: var(--bg-stage); color: var(--ink) }
+button, input, select, textarea { font: inherit; color: inherit }
+button, a, input, select, textarea { -webkit-tap-highlight-color: transparent }
+button { cursor: pointer; border: 0; background: none; touch-action: manipulation }
+button:disabled { opacity: .45; cursor: not-allowed }
+button:focus-visible, a:focus-visible, input:focus-visible,
+select:focus-visible, textarea:focus-visible {
+  outline: 3px solid var(--brand-ink);
+  outline-offset: 3px;
+}
+a { color: inherit }
+h1, h2, h3, p { margin: 0 }
+button svg { flex-shrink: 0 }
+svg { vertical-align: middle }
+img { display: block; max-width: 100% }
+s, del { color: var(--ink-muted) }
+
+/* ========================================================================
+   Review chrome
+   The bar above the app is for whoever is reviewing the prototype: the
+   wordmark, the appearance and language controls, and the workspace switcher.
+   On a phone the customer app takes the whole screen and this bar steps out of
+   the way, so the same two controls also live in the You tab.
+   ===================================================================== */
+.presentation {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--bg-stage);
+  background-image: radial-gradient(ellipse at 50% 55%, var(--bg-stage-glow) 0, transparent 65%);
+  padding: 0 48px 34px;
+  display: flex;
+  flex-direction: column;
+}
+.presentation.workspace-mode { padding: 0; display: block }
+
+.presentation-header {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+  padding: 17px 0 19px;
+  width: 100%;
+  max-width: 1360px;
+  margin: 0 auto;
+}
+.wordmark {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 41px;
+  letter-spacing: -2.5px;
+  line-height: 1.08;
+  display: inline-flex;
+  align-items: start;
+  gap: 3px;
+}
+.wordmark.small { font-size: 34px; letter-spacing: -1.8px }
+.prototype-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--fs-caption);
+  color: var(--ink-muted);
+}
+.prototype-label > span {
+  height: 5px;
+  width: 5px;
+  border-radius: 50%;
+  background: var(--brand-ink);
+  flex-shrink: 0;
+}
+
+/* ---- Appearance & language ----------------------------------------------
+   One pill shape for both, so a reader learns the control once. The pressed
+   state fills its background; a colour change on its own is easy to miss on a
+   projector. */
+.pref-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  border: 1px solid var(--line-accent);
+  border-radius: var(--r-pill);
+  background: var(--bg-surface);
+}
+.pref-control > button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 34px;
+  min-width: 38px;
+  padding: 6px 11px;
+  border-radius: var(--r-pill);
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  color: var(--ink-muted);
+}
+.pref-control > button:hover { color: var(--ink) }
+.pref-control > button[aria-pressed='true'] { background: var(--brand); color: var(--on-brand) }
+.pref-control .pref-lead { margin: 0 3px 0 6px; color: var(--ink-muted) }
+.header-preferences { display: flex; align-items: center; gap: 10px; margin-left: auto; flex-wrap: wrap }
+
+.role-picker {
+  display: flex;
+  padding: 5px;
+  border: 1px solid var(--line-accent);
+  border-radius: var(--r-pill);
+  background: var(--bg-surface);
+  gap: 2px;
+}
+.role-picker button {
+  padding: 10px 18px;
+  min-height: var(--tap);
+  border-radius: var(--r-pill);
+  font-size: var(--fs-caption);
+  font-weight: 750;
+  color: var(--ink-muted);
+}
+.role-picker button:hover { color: var(--ink) }
+.role-picker button[aria-pressed='true'] { background: var(--brand); color: var(--on-brand) }
+
+/* ========================================================================
+   Customer app shell
+   A single column that owns its own height: the header and the bottom bar are
+   fixed ends and only .screen-scroll scrolls. On a desktop it sits in a
+   rounded card; on a phone it is simply the window.
+   ===================================================================== */
+.customer-app {
+  width: 100%;
+  max-width: 412px;
+  margin: 0 auto;
+  flex: 1;
+  min-height: 0;
+  max-height: 858px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  isolation: isolate;
+  background: var(--bg-app);
+  border: 1px solid var(--line-accent);
+  border-radius: 34px;
+  overflow: hidden;
+  box-shadow: 0 22px 55px -28px #53355f66;
+}
+.app-header {
+  flex-shrink: 0;
+  padding: 14px 20px 12px;
+  background: var(--bg-app);
+  z-index: 2;
+  transition: box-shadow .2s ease, border-color .2s ease;
+  border-bottom: 1px solid transparent;
+}
+/* Set by the scroll hook once the reader has moved past the banner, so the
+   header separates from the content only when something is behind it. */
+.customer-app.is-scrolled .app-header {
+  border-bottom-color: var(--line);
+  box-shadow: 0 4px 14px -10px #47304f55;
+}
+/* On discover the location row sits under the brand row, so the header gives
+   back some of its own bottom padding. */
+.app-header.discovery-header { padding-bottom: 6px }
+.brand-row { display: flex; justify-content: space-between; align-items: center; gap: 10px }
+.brand-home { display: inline-flex; align-items: center; padding: 0; min-height: var(--tap) }
+.demo-badge {
+  margin-right: auto;
+  margin-left: 9px;
+  font-size: var(--fs-micro);
+  font-weight: 750;
+  color: var(--brand-ink);
+  background: var(--bg-chip);
+  border: 1px solid var(--line-accent);
+  border-radius: var(--r-pill);
+  padding: 4px 9px;
+}
+.bag-button {
+  height: var(--tap);
+  width: var(--tap);
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  position: relative;
+  background: var(--bg-surface-2);
+  flex-shrink: 0;
+}
+.bag-button b {
+  position: absolute;
+  right: -3px;
+  top: -2px;
+  font-size: var(--fs-micro);
+  background: var(--bg-invert);
+  color: var(--on-invert);
+  min-width: 20px;
+  height: 20px;
+  padding: 0 4px;
+  border-radius: var(--r-pill);
+  display: grid;
+  place-items: center;
+}
+.location-button {
+  font-size: var(--fs-sm);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 38px;
+  padding: 6px 4px 0 0;
+  color: var(--ink-muted);
+}
+.screen-scroll {
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex: 1;
+  min-height: 0;
+  scrollbar-width: none;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  background: var(--bg-app);
+}
+.screen-scroll::-webkit-scrollbar { display: none }
+
+/* ========================================================================
+   Discover
+   ===================================================================== */
+
+.bakery-banner {
+  position: relative;
+  margin: 0 20px 16px;
+  background: var(--bg-accent);
+  border-radius: 8px 8px 24px 24px;
+  overflow: hidden;
+  padding: 27px 17px 13px;
+  border: 1px solid var(--line-accent);
+}
+.awning { position: absolute; display: flex; top: -1px; left: 0; right: 0; height: 22px; overflow: hidden }
+.awning i {
+  height: 23px;
+  flex: 1;
+  background: var(--awning);
+  border-radius: 0 0 50% 50%;
+  border-right: 1px solid #9676aa50;
+}
+.awning i:nth-child(even) { background: var(--bg-accent-strong) }
+.bakery-message { display: flex; align-items: center; justify-content: space-between; gap: 6px }
+.bakery-message h1 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: var(--fs-3xl);
+  line-height: 1.09;
+  letter-spacing: -.6px;
+  margin: 5px 0 9px;
+}
+.bakery-message p { font-size: var(--fs-caption); letter-spacing: -.1px; font-weight: 650 }
+.hero-kicker {
+  font-size: var(--fs-micro);
+  font-weight: 750;
+  color: var(--brand-ink);
+  letter-spacing: .2px;
+}
+/* --hero-shift is written by the scroll hook, so the companion drifts with the
+   page instead of animating on its own. At rest, and under reduced motion, it
+   is 0. The sprite is never rotated: a pixel turned off the grid is a pixel
+   the browser has to blur. */
+.hero-mascot {
+  flex-shrink: 0;
+  margin-right: -7px;
+  transform: translateY(calc(var(--hero-shift, 0px) * -1));
+  transition: transform .15s linear;
+}
+.hero-mascot .monty-mascot { width: 92px; height: 92px }
+.bakery-sign {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: var(--fs-micro);
+  margin-top: 10px;
+  color: var(--ink-muted);
+  letter-spacing: .35px;
+  border-top: 1px dashed var(--line-dash);
+  padding-top: 7px;
+  text-align: center;
+}
+
+.discover-controls { padding: 0 20px }
+.search-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--line);
+  background: var(--bg-inset);
+  border-radius: var(--r-md);
+  min-height: 48px;
+  padding-left: 12px;
+  color: var(--ink-muted);
+}
+.search-field input {
+  border: 0;
+  background: none;
+  min-width: 0;
+  width: 100%;
+  font-size: var(--fs-base);
+  color: var(--ink);
+  outline: none;
+  padding: 12px 0;
+}
+.search-field input::placeholder { color: var(--ink-muted) }
+.filter-button {
+  width: 46px;
+  min-width: 46px;
+  align-self: stretch;
+  border-left: 1px solid var(--line);
+  display: grid;
+  place-items: center;
+  color: var(--ink);
+}
+/* A sort other than the default is worth seeing without opening the sheet. */
+.filter-button.has-filter { background: var(--brand); color: var(--on-brand); border-left-color: var(--brand) }
+
+/* Horizontally scrollable so a fifth category — or a longer translation —
+   never squeezes the others. Chips bleed to the screen edge. */
+.category-rail {
+  display: flex;
+  gap: 7px;
+  margin: 13px -20px 19px;
+  padding: 2px 20px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  scroll-snap-type: x proximity;
+  overscroll-behavior-x: contain;
+}
+.category-rail::-webkit-scrollbar { display: none }
+.category {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  white-space: nowrap;
+  padding: 10px 14px;
+  min-height: var(--tap);
+  font-size: var(--fs-caption);
+  font-weight: 750;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+}
+.category.active { background: var(--brand); border-color: var(--brand); color: var(--on-brand) }
+.category svg { width: 17px; height: 17px }
+
+.section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  padding: 0 21px;
+  margin: 0 0 12px;
+}
+.section-heading h2 {
+  font-family: var(--font-display);
+  font-size: var(--fs-xl);
+  letter-spacing: -.3px;
+  font-weight: 500;
+}
+.section-heading > span { font-size: var(--fs-caption); color: var(--ink-muted); white-space: nowrap }
+
+/* ========================================================================
+   Offer cards
+   ===================================================================== */
+.offers-list { padding: 0 20px; display: flex; flex-direction: column; gap: 14px }
+.offer-card {
+  border-radius: 18px;
+  background: var(--bg-surface);
+  overflow: hidden;
+  border: 1px solid var(--line-soft);
+}
+/* A find can be paused or sold out by the shop after someone saved it, so the
+   Saved tab is the one place a card like this still appears. */
+.offer-card.unavailable { opacity: .65 }
+.offer-card.unavailable .stock-label { color: var(--ink-muted) }
+.offer-photo { height: 170px; position: relative; overflow: hidden; background: var(--bg-photo) }
+.photo-button { display: block; padding: 0; width: 100%; height: 100% }
+.offer-photo img { width: 100%; height: 100%; object-fit: cover }
+.discount-ticket {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 7px 10px;
+  background: var(--bg-peach);
+  color: var(--ink);
+  border-radius: 7px;
+  font-size: var(--fs-sm);
+  font-weight: 900;
+  transform: rotate(-5deg);
+  box-shadow: var(--shadow-card);
+  pointer-events: none;
+}
+.heart-button {
+  position: absolute;
+  top: 11px;
+  right: 11px;
+  border-radius: 50%;
+  background: var(--bg-surface);
+  width: var(--tap);
+  height: var(--tap);
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line-soft);
+  color: var(--ink);
+}
+.heart-button.is-saved { color: var(--brand-ink) }
+.heart-button.is-saved svg { fill: currentColor }
+
+.offer-info { display: block; width: 100%; padding: 13px 14px 12px; text-align: left }
+.shop-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: var(--fs-caption);
+  color: var(--ink-muted);
+  gap: 6px;
+}
+.shop-line > span:first-child { font-weight: 750; display: flex; align-items: center; gap: 6px; min-width: 0 }
+.shop-line > span:last-child { white-space: nowrap }
+.offer-info h3 { font-size: var(--fs-lg); font-weight: 850; letter-spacing: -.4px; margin: 6px 0 7px }
+.offer-prices { display: flex; align-items: baseline; gap: 9px; flex-wrap: wrap; margin-bottom: 10px }
+.offer-prices strong { font-size: var(--fs-lg); font-weight: 900; white-space: nowrap }
+.offer-prices s { font-size: var(--fs-caption) }
+/* The saving is the reason to look twice, so it gets a chip. */
+.saving-label {
+  margin-left: auto;
+  font-size: var(--fs-micro);
+  font-weight: 800;
+  color: var(--warn-ink);
+  background: var(--warn-bg);
+  border-radius: var(--r-pill);
+  padding: 3px 8px;
+  white-space: nowrap;
+}
+.offer-bottom { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: var(--fs-caption) }
+.offer-bottom > span { display: flex; align-items: center; gap: 5px; color: var(--ink-muted) }
+.offer-bottom s { font-size: var(--fs-caption) }
+
+/* Scarcity is the reason to act, so it gets real weight rather than a whisper. */
+.stock-label { font-weight: 800; color: var(--ok); white-space: nowrap }
+.stock-label.low { color: var(--warn-ink) }
+
+.offer-card.compact { display: grid; grid-template-columns: 112px 1fr; border-radius: var(--r-lg); min-height: 150px }
+.offer-card.compact .offer-photo { height: 100%; min-height: 150px }
+.offer-card.compact .discount-ticket { top: 9px; left: 8px; padding: 5px 7px; font-size: var(--fs-micro) }
+.offer-card.compact .heart-button {
+  width: 36px;
+  height: 36px;
+  top: auto;
+  bottom: 8px;
+  right: 8px;
+}
+/* Keeps the visual circle small on a narrow thumbnail while the tap area
+   still reaches the 44px minimum. */
+.offer-card.compact .heart-button::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+}
+.offer-card.compact .heart-button svg { width: 17px }
+.offer-card.compact .offer-info { padding: 11px 12px 10px }
+.offer-card.compact .offer-info h3 { font-size: var(--fs-md); margin: 7px 0 5px }
+.offer-card.compact .offer-prices { gap: 7px; margin-bottom: 8px }
+.offer-card.compact .offer-prices strong { font-size: var(--fs-base) }
+.offer-card.compact .saving-label { padding: 2px 7px }
+
+.end-note { text-align: center; margin: 29px 25px 24px; color: var(--ink-muted) }
+.end-note p { font-size: var(--fs-sm); margin: 7px 0 5px }
+.end-note > span { font-size: var(--fs-micro) }
+
+/* ========================================================================
+   Bottom navigation
+   ===================================================================== */
+.bottom-nav {
+  display: flex;
+  justify-content: space-around;
+  background: var(--bg-surface);
+  min-height: 72px;
+  border-top: 1px solid var(--line-soft);
+  padding: 8px 10px 0;
+}
+.bottom-nav > button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  min-width: 64px;
+  min-height: var(--tap);
+  font-size: var(--fs-micro);
+  font-weight: 700;
+  color: var(--ink-muted);
+}
+.bottom-nav > button > span {
+  width: 52px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-md);
+  position: relative;
+}
+.bottom-nav > button.selected { color: var(--ink) }
+.bottom-nav > button.selected > span { background: var(--bg-accent) }
+.bottom-nav > button > span > i {
+  position: absolute;
+  right: 8px;
+  top: 2px;
+  width: 7px;
+  height: 7px;
+  background: var(--brand-ink);
+  border: 1px solid var(--bg-surface);
+  border-radius: 50%;
+}
+
+/* Sits above the bottom bar, outside the scrolling area, so the bag stays
+   reachable without the reader scrolling back up. */
+.floating-bag {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: calc(68px + env(safe-area-inset-bottom));
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 16px;
+  border-radius: var(--r-pill);
+  background: var(--bg-invert);
+  color: var(--on-invert);
+  font-size: var(--fs-sm);
+  font-weight: 750;
+  box-shadow: var(--shadow-float);
+}
+.floating-bag > span { display: flex; align-items: center; gap: 8px; min-width: 0 }
+.floating-bag > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.floating-bag > span:last-child { flex-shrink: 0; opacity: .85 }
+
+/* ========================================================================
+   Detail
+   ===================================================================== */
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px 12px;
+  gap: 10px;
+  background: var(--bg-app);
+}
+.page-header h2 { font-size: var(--fs-md); font-weight: 800 }
+.icon-button, .round-button {
+  display: grid;
+  place-items: center;
+  width: var(--tap);
+  height: var(--tap);
+  border-radius: 50%;
+  flex-shrink: 0;
+  color: var(--ink);
+}
+.icon-button:hover { background: var(--bg-surface-2) }
+.round-button { background: var(--bg-surface) }
+.header-spacer { width: var(--tap) }
+
+.detail-photo { position: relative; height: 265px; background: var(--bg-photo) }
+.detail-photo > img { width: 100%; height: 100%; object-fit: cover }
+.detail-photo-actions { display: flex; justify-content: space-between; position: absolute; top: 14px; left: 16px; right: 16px }
+.detail-photo-actions .heart-button { position: static }
+.detail-discount {
+  position: absolute;
+  bottom: 17px;
+  left: 20px;
+  background: var(--bg-peach);
+  color: var(--ink);
+  padding: 9px 13px;
+  border-radius: 7px;
+  transform: rotate(-3deg);
+  font-size: var(--fs-base);
+  font-weight: 800;
+}
+.detail-copy { padding: 20px 21px 16px }
+.detail-copy .shop-line { font-size: var(--fs-sm) }
+.detail-copy h1 {
+  font-family: var(--font-display);
+  font-size: var(--fs-4xl);
+  font-weight: 500;
+  letter-spacing: -1px;
+  margin: 11px 0 10px;
+  line-height: 1.1;
+}
+.detail-price { display: flex; gap: 11px; align-items: baseline; flex-wrap: wrap; margin-bottom: 22px }
+.detail-price strong { font-size: var(--fs-xl); font-weight: 850 }
+.detail-price s { font-size: var(--fs-sm) }
+.detail-price > span { margin-left: auto; font-size: var(--fs-caption); color: var(--ink-muted) }
+
+.pickup-window {
+  background: var(--bg-accent);
+  padding: 14px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 23px;
+}
+.icon-tile {
+  height: 42px;
+  min-width: 42px;
+  border-radius: 11px;
+  background: var(--bg-accent-strong);
+  display: grid;
+  place-items: center;
+  color: var(--ink);
+}
+.pickup-window > div { display: flex; flex-direction: column; gap: 4px; min-width: 0 }
+.pickup-window strong { font-size: var(--fs-base); font-weight: 800 }
+.pickup-window > div > span { font-size: var(--fs-caption); line-height: 1.5; color: var(--ink-muted) }
+.stock-badge {
+  margin-left: auto;
+  font-size: var(--fs-micro);
+  background: var(--bg-chip);
+  padding: 6px 9px;
+  border-radius: 6px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+.detail-copy h2 { font-size: var(--fs-md); font-weight: 850; margin-bottom: 9px }
+.detail-copy > p { font-size: var(--fs-base); line-height: 1.65; color: var(--ink-muted) }
+.allergens {
+  font-size: var(--fs-caption);
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 15px 0 22px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--line);
+}
+.allergens > span { color: var(--ink-muted) }
+.shop-address { display: flex; align-items: start; gap: 11px }
+.shop-address > svg { flex-shrink: 0; margin-top: 3px }
+.shop-address strong { font-size: var(--fs-base) }
+.shop-address p { font-size: var(--fs-caption); line-height: 1.6; margin: 4px 0; color: var(--ink-muted) }
+.shop-address small { font-size: var(--fs-caption); line-height: 1.6; display: block; color: var(--ink-muted) }
+.detail-copy p.gentle-note {
+  background: var(--bg-accent-soft);
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 10px;
+  margin: 19px 0 0;
+  font-size: var(--fs-caption);
+  line-height: 1.5;
+}
+.gentle-note svg { flex-shrink: 0 }
+
+/* ========================================================================
+   Buttons & steppers
+   ===================================================================== */
+.detail-action {
+  display: flex;
+  gap: 10px;
+  padding: 12px 16px 9px;
+  border-top: 1px solid var(--line-soft);
+  background: var(--bg-surface);
+  align-items: center;
+}
+.stepper {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  height: calc(var(--tap) + 4px);
+  overflow: hidden;
+  background: var(--bg-surface-2);
+  flex-shrink: 0;
+}
+.stepper > button {
+  width: var(--tap);
+  height: 100%;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  color: var(--ink);
+}
+.stepper output { width: 30px; text-align: center; font-size: var(--fs-md); font-weight: 800 }
+.primary-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: var(--brand);
+  color: var(--on-brand);
+  min-height: 50px;
+  border-radius: var(--r-md);
+  padding: 13px 16px;
+  font-size: var(--fs-base);
+  font-weight: 800;
+  border: 1px solid var(--brand);
+  transition: background .15s;
+}
+.primary-button:hover { background: var(--brand-strong) }
+.primary-button.full, .secondary-button.full { width: 100% }
+.detail-action .primary-button { flex: 1; min-width: 0; padding: 13px 14px }
+.secondary-button {
+  border: 1px solid var(--line-accent);
+  background: var(--bg-accent);
+  color: var(--ink);
+  border-radius: var(--r-md);
+  min-height: var(--tap);
+  padding: 13px;
+  font-size: var(--fs-base);
+  font-weight: 750;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 10px;
+}
+.text-button {
+  text-decoration: underline;
+  font-size: var(--fs-caption);
+  min-height: var(--tap);
+  padding: 10px 6px;
+  color: var(--ink-muted);
+}
+
+/* ========================================================================
+   Bag
+   ===================================================================== */
+.bag-content { padding: 4px 20px 24px }
+.bag-shop { display: flex; align-items: center; gap: 11px; margin-bottom: 22px }
+.bag-shop .icon-tile { background: var(--bg-peach); width: 46px; height: 46px; border: 1px solid var(--line-soft) }
+.bag-shop h1 { font-family: var(--font-display); font-size: var(--fs-2xl); font-weight: 500 }
+.bag-shop p { font-size: var(--fs-caption); color: var(--ink-muted); margin-top: 4px }
+.bag-item { display: flex; gap: 12px; margin: 0 0 16px; padding-bottom: 17px; border-bottom: 1px solid var(--line) }
+.bag-item > img, .bag-item > .photo-fallback {
+  width: 84px;
+  height: 96px;
+  object-fit: cover;
+  /* the arched loaf silhouette, shared with the merchant item rows */
+  border-radius: var(--r-arch);
+  background: var(--bg-photo);
+  flex-shrink: 0;
+}
+.bag-item > div:last-child { flex: 1; min-width: 0 }
+.bag-item h3 { font-size: var(--fs-md); margin: 2px 0 6px }
+.bag-item strong { font-size: var(--fs-base) }
+.bag-item-controls { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 9px }
+.bag-item .stepper { height: calc(var(--tap) + 2px); border-radius: 10px }
+.bag-item .stepper > button { width: var(--tap) }
+.bag-item .stepper output { width: 26px; font-size: var(--fs-base) }
+.bag-item .stepper svg { width: 15px }
+.add-more {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-base);
+  font-weight: 750;
+  min-height: var(--tap);
+  padding: 4px 0 0;
+  margin-bottom: 20px;
+}
+.bag-content .pickup-window { padding: 13px 12px; margin-bottom: 20px }
+.bag-content .pickup-window > svg { flex-shrink: 0 }
+.bag-content .pickup-window strong { font-size: var(--fs-sm) }
+.bag-content .pickup-window > div > span { font-size: var(--fs-caption) }
+
+.receipt-summary { font-size: var(--fs-base); margin-bottom: 19px }
+.receipt-summary > div { display: flex; justify-content: space-between; gap: 12px; margin: 13px 0 }
+.receipt-summary .saving-line { color: var(--ok); font-size: var(--fs-base); font-weight: 700 }
+.receipt-summary .total-line { border-top: 1px dashed var(--line); padding-top: 15px; font-size: var(--fs-lg) }
+.payment-choice {
+  display: flex;
+  gap: 11px;
+  align-items: center;
+  border: 1px solid var(--line-accent);
+  background: var(--bg-accent);
+  padding: 13px 12px;
+  border-radius: var(--r-md);
+  margin-bottom: 12px;
+}
+.payment-choice > div { display: flex; flex-direction: column; gap: 4px }
+.payment-choice strong { font-size: var(--fs-sm) }
+.payment-choice > div > p { font-size: var(--fs-caption); color: var(--ink-muted); line-height: 1.55 }
+.checkout-note { font-size: var(--fs-caption); color: var(--ink-muted); line-height: 1.6; margin: 14px 0 18px }
+.checkout-items { margin-bottom: 20px }
+.checkout-items p { display: flex; justify-content: space-between; gap: 12px; font-size: var(--fs-sm); margin: 11px 0 }
+.small-note { font-size: var(--fs-caption); line-height: 1.6; text-align: center; color: var(--ink-muted); margin: 13px 0 }
+.inline-warning {
+  font-size: var(--fs-sm);
+  line-height: 1.5;
+  background: var(--warn-bg);
+  padding: 12px;
+  border-radius: var(--r-sm);
+  color: var(--warn-ink);
+  margin: 12px 0;
+}
+
+/* ========================================================================
+   Pickup pass
+   ===================================================================== */
+.pass-screen { background: var(--bg-pass) }
+.pass-screen .page-header { background: var(--bg-pass) }
+.pass-intro { text-align: center; padding: 3px 10px 20px }
+.pass-intro .monty-mascot { margin: 0 auto 6px }
+.pass-intro h1 { font-family: var(--font-display); font-size: var(--fs-3xl); font-weight: 500; letter-spacing: -.6px }
+.pass-intro p { font-size: var(--fs-caption); color: var(--ink-muted); margin-top: 8px }
+.pickup-pass {
+  margin: 0 24px;
+  background: var(--bg-surface);
+  border-radius: 13px 13px 0 0;
+  position: relative;
+  filter: drop-shadow(0 7px 10px #6744730c);
+  padding-bottom: 5px;
+}
+.pickup-pass:after {
+  content: '';
+  position: absolute;
+  bottom: -9px;
+  left: 0;
+  right: 0;
+  height: 10px;
+  background:
+    linear-gradient(135deg, var(--bg-surface) 25%, transparent 25%) -5px 0/10px 10px,
+    linear-gradient(225deg, var(--bg-surface) 25%, transparent 25%) -5px 0/10px 10px;
+}
+.pass-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 16px 19px;
+  border-bottom: 1px dashed var(--line);
+}
+.pass-heading .wordmark { font-size: 27px }
+.pass-heading > span:last-child {
+  font-size: var(--fs-micro);
+  font-weight: 800;
+  color: var(--ok);
+  padding: 6px 8px;
+  border-radius: 5px;
+  background: var(--ok-bg);
+  white-space: nowrap;
+}
+.pass-shop { text-align: center; padding-top: 18px }
+.pass-shop h2 { font-family: var(--font-display); font-size: var(--fs-2xl); font-weight: 500 }
+.pass-shop p { font-size: var(--fs-sm); color: var(--ink-muted); margin: 7px 0 12px }
+.qr-wrap { width: 176px; height: 176px; margin: 0 auto; position: relative; background: #fff; border-radius: 6px; padding: 6px }
+.qr-wrap svg { display: block; width: 100%; height: 100% }
+.pickup-pass.is-collected .qr-wrap > svg { opacity: .12 }
+.collected-stamp {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  font-size: var(--fs-md);
+  font-weight: 800;
+  color: var(--ok);
+}
+.pass-code { text-align: center; margin: 10px 0 20px }
+.pass-code > span { font-size: var(--fs-caption); color: var(--ink-muted); display: block; margin-bottom: 5px }
+.pass-code > strong { font-size: var(--fs-xl); letter-spacing: 4px }
+.perforation { position: relative; border-top: 1px dashed var(--line); margin: 0 0 14px }
+.perforation:before, .perforation:after {
+  content: '';
+  width: 18px;
+  height: 18px;
+  background: var(--bg-pass);
+  position: absolute;
+  top: -9px;
+  border-radius: 50%;
+}
+.perforation:before { left: -9px }
+.perforation:after { right: -9px }
+.pass-items { padding: 0 20px }
+.pass-items > div { display: flex; justify-content: space-between; gap: 12px; font-size: var(--fs-caption); margin: 10px 0 }
+.pass-items .pass-total {
+  font-size: var(--fs-base);
+  margin-top: 16px;
+  padding-top: 11px;
+  border-top: 1px solid var(--line);
+  font-weight: 800;
+}
+.pass-footer {
+  margin: 15px 20px 10px;
+  font-size: var(--fs-caption);
+  color: var(--ink-muted);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  justify-content: center;
+  text-align: center;
+}
+.pickup-instructions { display: flex; align-items: start; gap: 10px; padding: 28px 24px 11px }
+.pickup-instructions > svg { flex-shrink: 0 }
+.pickup-instructions strong { font-size: var(--fs-sm); font-weight: 800; line-height: 1.6; display: block }
+.pickup-instructions p { font-size: var(--fs-caption); color: var(--ink-muted); line-height: 1.6; margin-top: 3px }
+.pass-browse { margin: 8px 24px 0; width: calc(100% - 48px); background: var(--bg-accent) }
+
+/* ========================================================================
+   Tabs: pickups, saved, profile
+   ===================================================================== */
+.tab-content { padding: 15px 20px 25px }
+.tab-heading { padding: 8px 0 22px }
+.tab-heading h1 { font-family: var(--font-display); font-size: var(--fs-4xl); letter-spacing: -.9px; font-weight: 500 }
+.tab-heading > p { font-size: var(--fs-sm); color: var(--ink-muted); margin-top: 8px }
+.segmented {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 18px;
+  background: var(--bg-inset);
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+}
+.segmented > button {
+  flex: 1;
+  min-height: 38px;
+  border-radius: var(--r-pill);
+  font-size: var(--fs-caption);
+  font-weight: 750;
+  color: var(--ink-muted);
+}
+.segmented > button[aria-pressed='true'] { background: var(--bg-surface); color: var(--ink); box-shadow: var(--shadow-card) }
+.saved-note { font-size: var(--fs-caption); color: var(--ink-muted); line-height: 1.6; margin-bottom: 16px }
+.demo-account {
+  display: inline-block;
+  font-size: var(--fs-micro);
+  font-weight: 750;
+  color: var(--brand-ink);
+  background: var(--bg-chip);
+  border: 1px solid var(--line-accent);
+  border-radius: var(--r-pill);
+  padding: 4px 10px;
+  margin-bottom: 11px;
+}
+/* The companion picker. A grid rather than a rail: six of them fit on a phone
+   two or three to a row without anything scrolling out of sight, and each card
+   is a real tap target with the drawing, the name and the little trait line. */
+.pet-picker {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--bg-surface);
+  padding: 15px 14px 14px;
+  margin-bottom: 18px;
+}
+.pet-picker-heading h2 { font-family: var(--font-display); font-size: var(--fs-lg); font-weight: 500 }
+.pet-picker-heading p { font-size: var(--fs-caption); line-height: 1.6; color: var(--ink-muted); margin: 6px 0 13px }
+/* Three across, two rows, at every width the customer app is ever shown at:
+   six companions divide evenly, so no row is left with a gap in it. */
+.pet-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 9px;
+}
+.pet-option {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 9px 6px 11px;
+  min-height: var(--tap);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--bg-inset);
+  text-align: center;
+  transition: border-color .18s ease, background .18s ease, transform .18s ease;
+}
+.pet-option .monty-mascot { width: 62px; height: 62px }
+.pet-option strong { font-size: var(--fs-caption); font-weight: 800 }
+.pet-option small { font-size: var(--fs-micro); line-height: 1.35; color: var(--ink-muted) }
+.pet-option:hover { border-color: var(--line-accent) }
+.pet-option.chosen {
+  border-color: var(--brand);
+  background: var(--bg-accent);
+  box-shadow: inset 0 0 0 1px var(--brand);
+}
+.pet-chosen-tick {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--r-pill);
+  background: var(--brand);
+  color: var(--on-brand);
+}
+.profile-greeting .pet-caption {
+  font-size: var(--fs-caption);
+  color: var(--ink-muted);
+  margin-top: 6px;
+}
+
+/* Appearance and language, repeated here because the review header is hidden
+   on a phone and this is where someone would look for a setting anyway. */
+.profile-preferences {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--bg-surface);
+  padding: 6px 14px;
+  margin-bottom: 22px;
+}
+.preference-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 11px 0;
+}
+.preference-row + .preference-row { border-top: 1px solid var(--line) }
+.preference-row > span { display: flex; align-items: center; gap: 9px; font-size: var(--fs-sm); font-weight: 700 }
+.saved-list { padding: 0 }
+.order-card {
+  display: block;
+  text-align: left;
+  width: 100%;
+  padding: 17px 17px 0;
+  margin-bottom: 17px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--bg-surface);
+  overflow: hidden;
+}
+.order-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 13px }
+.status-tag { font-size: var(--fs-micro); background: var(--bg-accent); padding: 6px 9px; border-radius: 6px; font-weight: 750 }
+.status-tag.done { background: var(--ok-bg); color: var(--ok) }
+.order-card h2 { font-size: var(--fs-xl); font-family: var(--font-display); font-weight: 600 }
+.order-card > p { font-size: var(--fs-sm); color: var(--ink-muted); margin: 7px 0 16px; line-height: 1.5 }
+.order-bottom { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: var(--fs-sm); margin-bottom: 15px }
+.order-bottom > span { display: flex; align-items: center; gap: 5px }
+.show-pass {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-accent);
+  margin: 0 -17px;
+  padding: 14px 17px;
+  font-size: var(--fs-sm);
+  font-weight: 800;
+  border-top: 1px dashed var(--line-accent);
+}
+
+.empty-state { text-align: center; display: flex; flex-direction: column; align-items: center; padding: 40px 12px 35px }
+/* An empty state under a page header gives its companion room to speak: the
+   bubble opens upward, and at this padding it clears the title behind it. */
+.page-header + .empty-state { padding-top: 84px }
+.empty-state .monty-mascot { width: 120px; height: 120px; margin-bottom: 19px }
+.empty-state h2 { font-family: var(--font-display); font-size: var(--fs-3xl); font-weight: 500; line-height: 1.2; max-width: 280px }
+.empty-state p { font-size: var(--fs-base); line-height: 1.65; color: var(--ink-muted); margin: 13px 0 25px; max-width: 270px }
+
+.profile-greeting { text-align: center; padding: 4px 0 24px }
+.profile-greeting .monty-mascot { height: 104px; width: 104px; margin: 0 auto 10px }
+.profile-greeting h1 { font-family: var(--font-display); font-size: var(--fs-3xl); font-weight: 500 }
+.profile-greeting > p { font-size: var(--fs-sm); color: var(--ink-muted); margin-top: 9px }
+.profile-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: var(--bg-peach);
+  color: var(--ink);
+  border-radius: var(--r-lg);
+  padding: 19px 0;
+  margin-bottom: 23px;
+}
+.profile-stats > div { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 0 8px; text-align: center }
+.profile-stats > div + div { border-left: 1px solid #00000022 }
+.profile-stats strong { font-family: var(--font-display); font-size: var(--fs-2xl); font-weight: 500 }
+.profile-stats span { font-size: var(--fs-caption) }
+.profile-links > button {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+  min-height: var(--tap);
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+  padding: 15px 0;
+}
+.profile-links > button > span { flex: 1; font-size: var(--fs-md); font-weight: 800; min-width: 0 }
+.profile-links small { display: block; font-size: var(--fs-caption); font-weight: 400; color: var(--ink-muted); margin-top: 4px }
+.preview-note { background: var(--bg-accent-soft); padding: 16px; border-radius: 14px; margin-top: 25px }
+.preview-note h2 { font-family: var(--font-display); font-size: var(--fs-lg); font-weight: 500 }
+.preview-note p { font-size: var(--fs-caption); line-height: 1.65; color: var(--ink-muted); margin: 9px 0 13px }
+.workspace-links { border-top: 1px dashed var(--line); padding-top: 6px }
+.workspace-links button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: var(--tap);
+  font-size: var(--fs-sm);
+  font-weight: 800;
+  padding: 9px 0;
+}
+.reset-button {
+  font-size: var(--fs-caption);
+  text-decoration: underline;
+  color: var(--ink-muted);
+  margin-top: 8px;
+  min-height: var(--tap);
+  padding: 4px 0;
+}
+
+/* ========================================================================
+   Toast & modals
+   ===================================================================== */
+.toast {
+  position: fixed;
+  bottom: 27px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  background: var(--bg-invert);
+  color: var(--on-invert);
+  box-shadow: var(--shadow-float);
+  border: 1px solid var(--line-accent);
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  max-width: min(420px, calc(100% - 32px));
+  width: max-content;
+  font-size: var(--fs-sm);
+  line-height: 1.5;
+  padding: 13px 14px;
+  border-radius: 13px;
+}
+/* Anchored to the phone rather than the browser window, so it cannot drift
+   off the device frame on a tall viewport. */
+.toast.in-app {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  right: 16px;
+  transform: none;
+  width: auto;
+  max-width: none;
+}
+.toast > svg { flex-shrink: 0 }
+.toast > span { flex: 1; min-width: 0 }
+.toast button {
+  color: var(--on-invert);
+  padding: 0;
+  display: grid;
+  place-items: center;
+  width: var(--tap);
+  height: var(--tap);
+  /* pulled in so a full 44px target does not make the toast taller */
+  margin: -10px -8px -10px 0;
+  flex-shrink: 0;
+}
+
+.monty-modal {
+  width: min(380px, calc(100% - 36px));
+  border: 1px solid var(--line-accent);
+  border-radius: 25px;
+  padding: 22px;
+  background: var(--bg-surface);
+  color: var(--ink);
+  box-shadow: 0 25px 100px #37223d40;
+  max-height: 80dvh;
+}
+.monty-modal::backdrop { background: #36223970; backdrop-filter: blur(3px) }
+.modal-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px }
+.modal-heading h2 { font-family: var(--font-display); font-size: var(--fs-2xl); font-weight: 500; line-height: 1.15 }
+.modal-description { font-size: var(--fs-base); line-height: 1.65; color: var(--ink-muted); margin-bottom: 20px }
+.location-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 12px;
+  min-height: var(--tap);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  width: 100%;
+  margin-bottom: 9px;
+  text-align: left;
+  font-size: var(--fs-base);
+}
+.location-option > span { flex: 1; min-width: 0 }
+.location-option small { display: block; font-size: var(--fs-caption); margin-top: 4px; color: var(--ink-muted) }
+.location-option.chosen { background: var(--bg-accent); border-color: var(--line-accent) }
+.monty-modal .primary-button { margin-top: 20px }
+.how-step { display: flex; align-items: start; gap: 13px; margin: 19px 0 }
+.how-step > svg { flex-shrink: 0; margin-top: 2px }
+.how-step h3 { font-size: var(--fs-md); margin-bottom: 6px }
+.how-step p { font-size: var(--fs-sm); line-height: 1.65; color: var(--ink-muted) }
+
+.photo-fallback {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-photo);
+  gap: 9px;
+  color: var(--ink-muted);
+  font-size: var(--fs-caption);
+  text-align: center;
+  padding: 6px;
+}
+
+/* ========================================================================
+   Breakpoints
+   ===================================================================== */
+@media (max-width: 1150px) {
+  .presentation { padding: 0 30px 30px }
+}
+@media (max-width: 860px) {
+  .presentation-header { gap: 12px; padding: 14px 0 16px }
+  .presentation-header .wordmark { font-size: 29px }
+  .prototype-label { display: none }
+  .header-preferences { order: 3; margin-left: 0 }
+  .role-picker { margin-left: auto }
+  .role-picker button { font-size: var(--fs-micro); padding: 9px 12px }
+}
+@media (max-width: 700px) {
+  .presentation { padding: 0 16px 22px }
+  .customer-app { max-height: none }
+}
+
+/* ------------------------------------------------------------------------
+   Phone
+   The app fills the window instead of sitting in a card. Height comes from
+   dvh so an iOS toolbar sliding in or out resizes the app and does not push
+   the bottom bar under it, and the two ends carry the safe-area insets so
+   nothing hides behind the notch or the home indicator. html/body are left
+   scrollable: pinning them to height:100% with overflow:hidden is what breaks
+   the viewport on iOS Safari.
+   --------------------------------------------------------------------- */
+@media (max-width: 560px) {
+  html { -webkit-text-size-adjust: 100% }
+  body { background: var(--bg-app) }
+  .presentation {
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: 0;
+    background: var(--bg-app);
+    background-image: none;
+  }
+  .presentation-header { display: none }
+  .customer-app {
+    max-width: none;
+    max-height: none;
+    height: 100vh;
+    height: 100dvh;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .app-header { padding-top: calc(14px + env(safe-area-inset-top)) }
+  .bottom-nav { padding-bottom: calc(6px + env(safe-area-inset-bottom)) }
+  .floating-bag { bottom: calc(76px + env(safe-area-inset-bottom)) }
+  .toast.in-app { bottom: calc(16px + env(safe-area-inset-bottom)) }
+  .detail-action { padding-bottom: calc(12px + env(safe-area-inset-bottom)) }
+  .detail-photo { height: 285px }
+
+  /* The merchant and operations workspaces keep the review header: they are
+     desktop-shaped screens and the reader still needs a way back. */
+  .presentation.workspace-mode { display: block; height: auto; min-height: 100dvh }
+  .workspace-mode .presentation-header {
+    display: flex;
+    gap: 10px;
+    padding: calc(10px + env(safe-area-inset-top)) 15px 10px;
+  }
+  .workspace-mode .presentation-header .wordmark { font-size: 26px }
+  .workspace-mode .role-picker button { padding: 8px 10px; font-size: var(--fs-micro) }
+  .workspace-mode .header-preferences { order: 3; margin-left: 0; width: 100% }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *:before, *:after {
+    scroll-behavior: auto !important;
+    transition: none !important;
+    animation: none !important;
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "name": "monty-design-prototype",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node scripts/dev.mjs",
+    "build": "node scripts/build.mjs && node scripts/snapshot.mjs",
+    "test": "node --test --test-isolation=none tests/*.test.mjs",
+    "preview": "node scripts/serve.mjs",
+    "snapshot": "node scripts/snapshot.mjs",
+    "smoke": "node scripts/smoke.mjs",
+    "check": "npm test && npm run smoke"
+  },
+  "dependencies": {
+    "react": "19.2.7",
+    "react-dom": "19.2.7"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2"
+  }
+}

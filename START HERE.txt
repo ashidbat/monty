@@ -1,0 +1,170 @@
+MONTY — OPEN THE APPLICATION DESIGN
+
+1. Double-click "Open Monty.html" in this folder.
+2. It opens in your usual browser. Chrome or Edge works well.
+3. The included photos and fonts work offline. No internet connection is needed.
+
+You do NOT need to install anything or run a command to review the design.
+The preview is saved in this HTML file and does not need the Codex preview panel.
+
+TRY IT
+- Click a food photo or drawing.
+- Choose a quantity and click Add to bag.
+- Open your bag, review the pickup window, and continue to payment.
+- The payment sheet is shaped like QPay: an invoice, a QR and a list of banks.
+  Tap any bank, or "Simulate a paid invoice", and the sheet polls until it is
+  settled, exactly as a real one would. No money moves, no bank is contacted
+  and no card or account details are ever requested. Try "Simulate a decline"
+  too: nothing is charged and nothing is ordered.
+- Your QR pickup pass appears. Find it again under Pickups.
+- Use Merchant to list food, reuse an item, view orders and confirm pickup.
+- Select the same shop as the order and enter its backup code to confirm collection.
+- Enter that code again: an order can only be collected once.
+- Tap the place name at the top (or "Map" beside "Shops near you") to open
+  the location sheet. There is a map of all six shops, a simulated "Use my
+  demo location" fix, six named places you can stand on, how far you will
+  walk, and the districts. Every distance and walking time on every screen is
+  measured from wherever you are standing. Real GPS is not connected and no
+  location is stored or sent.
+- Move yourself to Zaisan and watch the list, the shop rail and the sort order
+  change. Set the radius to 1 km to see shops drop out of range.
+- Tap a pin on the map to open a shop, then "See this shop's food".
+- Six categories now: all food, bakery, meals, sweet, drinks and grocery.
+- The list grows twelve at a time. "Show more finds" is at the bottom.
+- Watch the clock. Every pickup window counts down, items inside their last
+   45 minutes say "Closes in 34 min" and rise up the Nearby list, and a window
+   that has shut cannot be bought or collected.
+- Use the demo time control (top bar, or under You) to push the clock forward.
+  Move it past a shop's closing time and watch the listings go, the basket
+  refuse, and a paid order you never collected expire on its own.
+- Rate a pickup once you have collected it. The score and the number of
+  collections behind it appear on every card from that shop.
+- In the Merchant workspace, "Money" shows what the shop actually recovered —
+  only collected orders count, because an order nobody came for is food that
+  went in the bin anyway. "Start tomorrow" rolls the day over and puts every
+  standing daily listing back on the counter.
+- Use Operations at the top for the overview.
+- On a narrow screen, the workspaces are under You.
+- Open You and pick a companion: Monty the loaf, Mishee the cat, Bankhar the
+  dog, Khuvun the bunny, Khonggor the lamb or Botgo the young camel. They are
+  pixel sprites with anime faces. Whoever you pick greets you on every screen
+  and is remembered in this browser.
+- Give your companion a tap wherever you see one. They answer with a kind word
+  and go back to waiting a few seconds later.
+- Switch the language with EN / MH and the theme with the sun, moon and
+  half-disc buttons. Both sit in the top bar, and both are under You as well.
+
+The customer screens are designed for a phone. The Merchant and Operations
+workspaces also adapt to a shop computer. Reduced-motion preferences are respected.
+
+This is a working design prototype, not an installed iPhone app.
+The clock is simulated so the shops are open whenever you open the file; the
+rules it drives — expiry, collection windows, the daily restock — are real.
+Six contracted shops carry around twenty items each: roughly 120 listings
+across bakery, meals, sweet, drinks and grocery. Shops, stock and payments are
+samples. Data is stored only in this browser when
+browser storage is available. No real customer account or payment is connected.
+Workspace switching is for review, not authentication or production security.
+The QR pass is generated locally. Camera scanning is not connected; merchants
+verify collection by typing the backup code.
+
+The bundled preview is fully offline. Five listings use real photographs; the
+rest carry a drawing, because five photographs cannot cover 120 items and
+repeating them would put the wrong food on the wrong card. A drawing says so on
+the item page. If you paste an external photo link into the merchant editor,
+that particular photo requires internet access. Custom photo links must show
+the item being offered. Sample photos, drawings and allergens are demo data.
+
+Distances are real arithmetic against real Ulaanbaatar coordinates. Your own
+position is simulated: the app never asks for or reads your real location.
+
+Opening the HTML file and the localhost preview uses separate browser storage.
+Review customer checkout and merchant collection in the same preview instance.
+
+PROJECT FILES
+Open Monty.html: easiest way to review; a self-contained copy of the current build.
+src/tokens.css: shared colours, type scale and spacing.
+src/fonts.css: locally bundled Fraunces and Nunito Sans font faces.
+src/main.jsx: customer screens and interactions.
+src/styles.css: customer layout, built on the tokens.
+src/Operations.jsx and operations.css: merchant and operations views.
+src/Wordmark.jsx: the one wordmark used everywhere in the product.
+src/components/: the companion sprites, the speech bubble, icons and controls.
+src/components/Mascot.jsx: the earlier vector loaf, kept for reference, unused.
+src/hooks/motion.js: motion preferences and lightweight scroll interactions.
+src/i18n.js: locale formatting for money and dates, and the Mongolian catalogue.
+src/catalogue.mjs: the six shops and every item, written in both languages.
+src/foodart.mjs: the flat-vector drawings used where there is no photograph.
+src/geo.mjs: coordinates, distances and the simulated location.
+src/components/MiniMap.jsx: the schematic map.
+src/location.css: the map, the location sheet and the shop rail.
+src/preferences.js: theme, language and companion choice, saved in this browser.
+src/pets.js: the companions a reader can choose, and their names in both languages.
+src/content.js: Mongolian titles and descriptions for the sample food.
+src/model.mjs: order and stock rules, built on the catalogue.
+src/qr.mjs: QR code generation.
+src/clock.mjs: the demo clock, pickup windows and what "closing soon" means.
+src/payments.mjs: the payment provider interface, and the demo QPay behind it.
+src/components/Payment.jsx: the payment sheet.
+src/components/Countdown.jsx: a pickup window, counted down.
+src/components/Rating.jsx: shop scores and rating a collected order.
+src/lifecycle.css: the clock, the payment sheet and the trust marks.
+public/assets/: local food photographs, font files, licenses and source credits.
+dist/: compiled preview files.
+tests/: automated checks for order rules, the catalogue, distances and QR encoding.
+
+LANGUAGE AND APPEARANCE
+The interface reads in English or Mongolian. Switch with EN / MH in the top bar,
+or open You and change it under Language. Prices are in Mongolian togrog in both
+languages, and dates follow the language you pick.
+
+Light, dark and follow-my-device sit beside the language control, and under You
+as well. Your choice is kept in this browser, along with the companion you pick.
+
+A companion name is the same word in both languages, written in the script of
+the language you are reading: Mishee is Мишээ, Bankhar is Банхар.
+
+Mongolian headings are set in Literata, because Fraunces has no Cyrillic
+letters. Body text stays in Nunito Sans, which does.
+
+The Mongolian wording was written for this prototype from the project research
+documents. A native speaker should still read it before it goes in front of
+anyone who matters.
+
+Native iPhone and Android applications are future work.
+
+FOR LATER DEVELOPMENT
+From a terminal opened in this folder:
+  npm install
+  npm start
+Then open http://127.0.0.1:4173
+
+If Windows PowerShell blocks npm.ps1, use npm.cmd instead of npm in these commands.
+
+  npm run build   rebuilds dist/ AND regenerates "Open Monty.html"
+  npm run snapshot regenerates "Open Monty.html" only
+  npm test        runs the order-rule, QR and translation checks
+  npm run smoke   renders every screen in both languages and reports failures
+  npm run check   runs both of the above
+
+The double-click HTML is no longer a separate manual step: npm run build keeps
+it in step with the source.
+
+A native iPhone/Android application, production backend and database are still
+future work.
+
+CONNECTING QPAY FOR REAL
+Everything the integration needs is already built and designed; only the four
+functions that talk to a bank are simulated. src/payments.mjs has the full
+instructions at the top of the file. In short:
+
+  1. QPay credentials are server credentials and must never reach a browser.
+     Your server holds them, calls QPay, and the app calls your server.
+  2. Write a 'qpay' provider with the same four functions as 'demoQPay'.
+     QPay's own invoice response already carries the QR, the QR image and the
+     bank deeplink list, so the payment sheet renders it unchanged.
+  3. Delete settleInvoice. It is the function that decides on its own that it
+     has been paid, which is correct for a prototype and a fraud vector in
+     anything real. An order is only paid because your server says so.
+  4. Set ACTIVE to the new provider. No screen has to change, and the reviewer
+     controls on the payment sheet disappear on their own.

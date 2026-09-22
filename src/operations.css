@@ -1,0 +1,424 @@
+/* Merchant and operations workspaces.
+   Same tokens, same typefaces and same wordmark as the customer app — a shop
+   owner and a customer should feel like they are in one product. */
+
+.ops {
+  color: var(--ink);
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--bg-app);
+  font-family: var(--font-body);
+}
+.ops * { box-sizing: border-box }
+.ops button, .ops input, .ops select, .ops textarea { font: inherit }
+.ops button { cursor: pointer }
+.ops button:disabled { cursor: not-allowed; opacity: .55 }
+.ops button:focus-visible, .ops input:focus-visible,
+.ops select:focus-visible, .ops textarea:focus-visible {
+  outline: 3px solid var(--brand-ink);
+  outline-offset: 4px;
+}
+.ops a { color: inherit }
+
+.ops-demo {
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 20px;
+  background: var(--bg-invert);
+  color: var(--on-invert);
+  font-size: var(--fs-caption);
+  text-align: center;
+}
+.ops-shell { width: min(1140px, 100% - 64px); margin: auto; padding: 30px 0 70px }
+.ops-topline { display: flex; justify-content: space-between; align-items: center; gap: 20px }
+.ops-back {
+  border: 0;
+  background: transparent;
+  min-height: var(--tap);
+  padding: 12px 0 12px 12px;
+  font-size: var(--fs-sm);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  color: var(--ink);
+}
+.ops-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 30px; padding: 40px 0 30px }
+.ops-heading h1 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -1.2px;
+  font-size: var(--fs-5xl);
+  line-height: 1.1;
+  margin: 0 0 12px;
+}
+.ops-heading p { margin: 0; max-width: 54ch; font-size: var(--fs-base); line-height: 1.6; color: var(--ink-muted) }
+.ops-shop-picker { flex: 0 0 245px }
+
+.ops-field { display: flex; flex-direction: column; gap: 8px; font-size: var(--fs-sm); font-weight: 600 }
+.ops-field input, .ops-field select, .ops-field textarea, .ops-code-input {
+  width: 100%;
+  background: var(--bg-surface);
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  min-height: 48px;
+  padding: 12px;
+  color: var(--ink);
+  font-size: var(--fs-base);
+  font-weight: 400;
+}
+.ops-field textarea { min-height: 88px; resize: vertical }
+.ops-field small { color: var(--ink-muted); font-size: var(--fs-caption); line-height: 1.5; font-weight: 400 }
+
+/* Stats read as cards, matching the panels used elsewhere in the workspace. */
+.ops-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 14px;
+  margin-bottom: 30px;
+}
+.ops-stat {
+  min-width: 0;
+  padding: 20px;
+  background: var(--bg-surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+}
+.ops-stat strong {
+  display: block;
+  margin-bottom: 8px;
+  font-family: var(--font-display);
+  font-size: var(--fs-4xl);
+  font-weight: 500;
+  letter-spacing: -.7px;
+  line-height: 1;
+}
+.ops-stat span { color: var(--ink-muted); font-size: var(--fs-caption); line-height: 1.4; display: block }
+
+.ops-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 25px }
+.ops-tab {
+  border: 1px solid transparent;
+  border-radius: var(--r-xl);
+  padding: 11px 20px;
+  min-height: var(--tap);
+  background: transparent;
+  color: var(--ink);
+  font-size: var(--fs-base);
+}
+.ops-tab[aria-pressed='true'] { background: var(--bg-peach); border-color: var(--line-soft); font-weight: 650 }
+.ops-tab:hover { border-color: var(--line-accent) }
+
+/* Headings share the list's measure so a primary action never strands itself
+   hundreds of pixels from the rows it applies to. */
+.ops-section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin: 0 0 20px;
+  max-width: 760px;
+}
+.ops-section-heading h2, .ops-panel h2, .ops-editor h2 {
+  font-family: var(--font-display);
+  font-size: var(--fs-2xl);
+  font-weight: 400;
+  line-height: 1.25;
+  margin: 0;
+  letter-spacing: -.4px;
+}
+.ops-section-heading p { font-size: var(--fs-caption); color: var(--ink-muted); margin: 7px 0 0; line-height: 1.5 }
+
+.ops-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--tap);
+  border-radius: 13px;
+  background: var(--brand);
+  color: var(--on-brand);
+  border: 1px solid var(--brand);
+  padding: 11px 18px;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  gap: 7px;
+  white-space: nowrap;
+}
+.ops-button.secondary { background: transparent; color: var(--ink); border-color: var(--line-accent) }
+.ops-button.quiet { background: var(--bg-accent); color: var(--ink); border-color: transparent }
+.ops-button:hover { filter: brightness(.95) }
+
+.ops-split { display: grid; grid-template-columns: minmax(0, 1fr) 355px; gap: 30px; align-items: start }
+
+/* ---- Item rows --------------------------------------------------------
+   Capped to a readable measure and with the actions directly beneath the
+   item they act on, rather than stranded at the far edge of the page. */
+.ops-offers { list-style: none; padding: 0; margin: 0; max-width: 760px }
+.ops-offer {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  align-items: start;
+  column-gap: 18px;
+  row-gap: 14px;
+  padding: 20px 0;
+  border-top: 1px solid var(--line);
+}
+.ops-offer:last-child { border-bottom: 1px solid var(--line) }
+.ops-offer img {
+  width: 96px;
+  height: 103px;
+  object-fit: cover;
+  /* the arched loaf silhouette, shared with the customer bag */
+  border-radius: var(--r-arch);
+  background: var(--bg-peach);
+  grid-row: span 2;
+}
+.ops-offer-info { min-width: 0 }
+.ops-offer h3 { margin: 0 0 7px; font-size: var(--fs-lg); font-weight: 650; line-height: 1.3 }
+.ops-offer p { margin: 0 0 7px; font-size: var(--fs-caption); line-height: 1.5; color: var(--ink-muted) }
+.ops-offer-price { font-weight: 650; font-size: var(--fs-md) }
+.ops-offer-price del { margin-left: 8px; color: var(--ink-muted); font-weight: 400; font-size: var(--fs-caption) }
+.ops-offer-actions { display: flex; flex-wrap: wrap; gap: 8px; grid-column: 2 }
+.ops-offer-actions button {
+  min-height: var(--tap);
+  min-width: 84px;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  background: var(--bg-accent);
+  color: var(--ink);
+  border: 1px solid transparent;
+}
+/* Pause is the quietest of the three, but still a button. */
+.ops-offer-actions button:last-child { background: transparent; border-color: var(--line-accent) }
+
+.ops-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 9px;
+  font-size: var(--fs-micro);
+  font-weight: 600;
+  border-radius: 7px;
+  background: var(--ok-bg);
+  color: var(--ok);
+  white-space: nowrap;
+}
+.ops-status.paused { background: var(--bg-surface-2); color: var(--ink-muted) }
+.ops-status.collected { background: var(--bg-accent); color: var(--ink) }
+
+.ops-editor { background: var(--bg-peach); color: var(--ink); border-radius: 24px 24px 9px 9px; padding: 25px }
+.ops-editor-title { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 24px }
+.ops-close {
+  background: transparent;
+  border: 0;
+  padding: 7px;
+  border-radius: 50%;
+  color: var(--ink);
+  width: var(--tap);
+  height: var(--tap);
+  font-size: var(--fs-2xl);
+  line-height: 1;
+}
+.ops-form { display: flex; flex-direction: column; gap: 17px }
+.ops-form-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px }
+.ops-form input, .ops-form select, .ops-form textarea { background: var(--bg-surface); border-color: var(--line) }
+.ops-form .ops-button { width: 100% }
+.ops-photo-choices { display: flex; gap: 8px; flex-wrap: wrap }
+.ops-photo-choice {
+  background: transparent;
+  border: 2px solid transparent;
+  padding: 3px;
+  border-radius: 13px;
+  width: 62px;
+  height: 68px;
+}
+.ops-photo-choice[aria-pressed='true'] { border-color: var(--ink) }
+.ops-photo-choice img { display: block; width: 100%; height: 100%; border-radius: 8px; object-fit: cover }
+.ops-check { display: flex; align-items: center; gap: 9px; font-size: var(--fs-sm); min-height: var(--tap) }
+.ops-check input { width: 20px; height: 20px; accent-color: var(--brand) }
+
+.ops-error {
+  border-left: 3px solid var(--warn-ink);
+  background: var(--warn-bg);
+  padding: 12px 14px;
+  color: var(--warn-ink);
+  font-size: var(--fs-sm);
+  line-height: 1.55;
+  margin: 0 0 18px;
+}
+.ops-success {
+  padding: 12px 14px;
+  border-left: 3px solid var(--ok);
+  color: var(--ok);
+  background: var(--ok-bg);
+  font-size: var(--fs-sm);
+  line-height: 1.5;
+}
+
+.ops-panel { background: var(--bg-accent); color: var(--ink); padding: 26px; border-radius: 24px 24px 9px 9px }
+.ops-panel h2 { margin-bottom: 12px }
+.ops-panel p { color: var(--ink-muted); font-size: var(--fs-sm); line-height: 1.6; margin: 0 0 20px }
+.ops-pickup-form { display: flex; flex-direction: column; gap: 13px }
+.ops-code-input { text-transform: uppercase; letter-spacing: 2px }
+
+.ops-order-list { display: flex; flex-direction: column; gap: 18px; max-width: 760px }
+.ops-order { border: 1px solid var(--line); border-radius: 15px; padding: 21px; background: var(--bg-surface) }
+.ops-order-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px }
+.ops-order-top strong { letter-spacing: 1px; font-size: var(--fs-lg) }
+.ops-order ul { list-style: none; padding: 0; margin: 0 0 17px }
+.ops-order li { display: flex; justify-content: space-between; gap: 15px; font-size: var(--fs-sm); line-height: 1.6; margin: 5px 0 }
+.ops-order-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  padding-top: 13px;
+  border-top: 1px dashed var(--line);
+  font-size: var(--fs-caption);
+  line-height: 1.5;
+  color: var(--ink-muted);
+}
+.ops-order-footer strong { color: var(--ink); font-size: var(--fs-md); white-space: nowrap }
+.ops-order-merchant { font-size: var(--fs-caption); color: var(--ink-muted); margin: 0 0 12px }
+
+.ops-empty { padding: 37px 24px; text-align: center; border: 1px dashed var(--line); border-radius: 18px; max-width: 760px }
+.ops-empty h3 { font-family: var(--font-display); font-weight: 400; font-size: var(--fs-2xl); margin: 0 0 10px }
+.ops-empty p { font-size: var(--fs-sm); line-height: 1.6; color: var(--ink-muted); max-width: 38ch; margin: 0 auto }
+
+.ops-admin-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 26px }
+.ops-admin-note { background: var(--bg-peach) }
+.ops-admin-list { margin: 0; padding: 0; list-style: none }
+.ops-admin-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 17px 0;
+  border-bottom: 1px solid var(--line-accent);
+  font-size: var(--fs-sm);
+}
+.ops-admin-list li:first-child { padding-top: 8px }
+.ops-admin-list li:last-child { border-bottom: 0; padding-bottom: 0 }
+.ops-admin-list span { color: var(--ink-muted) }
+.ops-admin-note p:last-child { margin-bottom: 0 }
+
+/* ---- Overview panel ------------------------------------------------------
+   One figure leads and four numbers support it. The ratio gets a track; a fifth
+   number would only compete with the other four. Figures use the body sans at
+   every size, since the display serif reads as decoration on a number. */
+.ops-figure {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 4px 0 22px;
+  border-bottom: 1px solid var(--line-accent);
+  margin-bottom: 20px;
+}
+.ops-figure-mark {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--bg-surface);
+  color: var(--ok);
+  border: 1px solid var(--line-accent);
+}
+.ops-figure > div { min-width: 0 }
+.ops-figure strong {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 52px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -1.5px;
+}
+.ops-figure > div > span { display: block; font-size: var(--fs-md); font-weight: 750; margin-top: 7px }
+.ops-figure small { display: block; font-size: var(--fs-caption); color: var(--ink-muted); margin-top: 4px; line-height: 1.5 }
+
+.ops-kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 22px }
+.ops-kpi {
+  background: var(--bg-surface);
+  border: 1px solid var(--line-accent);
+  border-radius: 14px;
+  padding: 14px 15px;
+}
+.ops-kpi-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: var(--fs-caption);
+  color: var(--ink-muted);
+  line-height: 1.35;
+  margin-bottom: 9px;
+}
+.ops-kpi-label svg { flex-shrink: 0; color: var(--brand-ink) }
+.ops-kpi strong { font-size: var(--fs-xl); font-weight: 800; letter-spacing: -.4px }
+
+.ops-meter-top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 9px }
+.ops-meter-top span { font-size: var(--fs-sm); font-weight: 700 }
+.ops-meter-top strong { font-size: var(--fs-lg); font-weight: 800 }
+/* Track and fill are two steps of the one lavender ramp, so the state reads
+   along the whole bar and not only where the fill ends. */
+.ops-meter-track {
+  height: 10px;
+  border-radius: var(--r-pill);
+  background: var(--bg-accent-strong);
+  overflow: hidden;
+}
+.ops-meter-track i { display: block; height: 100%; border-radius: var(--r-pill); background: var(--brand); transition: width .3s ease }
+.ops-meter small { display: block; font-size: var(--fs-caption); color: var(--ink-muted); margin-top: 9px; line-height: 1.5 }
+.ops-overview p { margin-bottom: 0 }
+
+.ops-merchants { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px }
+.ops-merchant-card {
+  border-top: 7px solid var(--bg-peach);
+  background: var(--bg-surface);
+  border-radius: 10px;
+  padding: 26px;
+  outline: 1px solid var(--line);
+}
+.ops-merchant-card h3 { margin: 0 0 10px; font-family: var(--font-display); font-weight: 400; font-size: var(--fs-2xl) }
+.ops-merchant-card p { margin: 0 0 16px; color: var(--ink-muted); font-size: var(--fs-sm); line-height: 1.6 }
+.ops-merchant-card dl {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 13px;
+  margin: 0;
+  padding-top: 17px;
+  border-top: 1px solid var(--line);
+  font-size: var(--fs-caption);
+}
+.ops-merchant-card dd { margin: 0; font-weight: 650 }
+.ops-footnote { font-size: var(--fs-caption); color: var(--ink-muted); line-height: 1.6; margin: 28px 0 0 }
+
+@media (max-width: 900px) {
+  .ops-shell { width: calc(100% - 40px) }
+  .ops-heading h1 { font-size: var(--fs-4xl) }
+  .ops-split { grid-template-columns: minmax(0, 1fr) 310px; gap: 20px }
+  .ops-offer { grid-template-columns: 72px minmax(0, 1fr); column-gap: 14px }
+  .ops-offer img { width: 72px; height: 87px }
+  .ops-merchants { grid-template-columns: 1fr }
+}
+@media (max-width: 660px) {
+  .ops-shell { width: calc(100% - 32px); padding-top: 19px }
+  .ops-back { font-size: var(--fs-caption) }
+  .ops-heading { align-items: stretch; flex-direction: column; padding-top: 30px; gap: 22px }
+  .ops-heading h1 { font-size: var(--fs-3xl) }
+  .ops-shop-picker { flex-basis: auto; width: 100% }
+  .ops-stats { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px }
+  .ops-stat { padding: 16px }
+  .ops-stat strong { font-size: var(--fs-3xl) }
+  .ops-tab { padding: 10px 15px; font-size: var(--fs-sm) }
+  .ops-split, .ops-admin-grid { display: flex; flex-direction: column; gap: 25px }
+  .ops-split > * { width: 100% }
+  .ops-editor, .ops-pickup-panel { order: -1 }
+  .ops-section-heading { align-items: flex-start }
+  .ops-section-heading h2 { font-size: var(--fs-xl) }
+  .ops-section-heading .ops-button { padding: 10px 13px }
+  .ops-admin-grid > .ops-panel { width: 100% }
+  .ops-kpis { grid-template-columns: 1fr }
+  .ops-figure strong { font-size: 46px }
+  .ops-offer-actions button { flex: 1 1 auto }
+}

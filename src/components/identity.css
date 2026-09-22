@@ -1,0 +1,162 @@
+.monty-icon {
+  flex: 0 0 auto;
+  vertical-align: middle;
+}
+
+.monty-mascot {
+  display: block;
+  flex: 0 0 auto;
+  overflow: visible;
+  max-width: 100%;
+  user-select: none;
+  pointer-events: none;
+}
+
+.wordmark .wordmark-grain {
+  display: block;
+  width: .49em;
+  height: .55em;
+  flex: 0 0 auto;
+  margin: .12em 0 0 .02em;
+  color: var(--brand-ink, #785783);
+  transform: rotate(12deg);
+}
+
+.wordmark-letters {
+  font-variation-settings: 'SOFT' 85, 'WONK' 1;
+}
+
+/* ---- Companions ----------------------------------------------------------
+   The companions are pixel sprites, so they move the way a sprite moves:
+   whole pixels, and frames that swap rather than blend. Every animation is
+   stepped for that reason — an eased bob would land the sprite between two
+   pixel rows and undo the crisp edges it is drawn for.
+
+   One inherited property, --pet-delay, staggers a whole row of them in the
+   picker so the six do not breathe in lockstep. */
+.monty-mascot {
+  --pet-delay: 0s;
+}
+/* One pixel up, one pixel down: at 150px that is a five-pixel hop on screen. */
+.monty-mascot .pet-bob {
+  animation: pixel-bob 1.5s steps(1, end) infinite var(--pet-delay, 0s);
+}
+/* The second frame of the blink, painted over the eyes and hidden until it is
+   that frame's turn. Held shut for a fraction of the cycle: a blink is a
+   moment, not a rhythm. */
+.monty-mascot .pet-blink-shut {
+  opacity: 0;
+  animation: pixel-blink 5.2s steps(1, end) infinite var(--pet-delay, 0s);
+}
+/* A two-frame tail, in step with the bob. */
+.monty-mascot .pet-frame-a {
+  animation: pixel-frame-a 1.5s steps(1, end) infinite var(--pet-delay, 0s);
+}
+.monty-mascot .pet-frame-b {
+  opacity: 0;
+  animation: pixel-frame-b 1.5s steps(1, end) infinite var(--pet-delay, 0s);
+}
+
+@keyframes pixel-bob {
+  0%, 49.9% { transform: translateY(0) }
+  50%, 100% { transform: translateY(-1px) }
+}
+@keyframes pixel-blink {
+  0%, 93.9% { opacity: 0 }
+  94%, 96.9% { opacity: 1 }
+  97%, 100% { opacity: 0 }
+}
+@keyframes pixel-frame-a {
+  0%, 49.9% { opacity: 1 }
+  50%, 100% { opacity: 0 }
+}
+@keyframes pixel-frame-b {
+  0%, 49.9% { opacity: 0 }
+  50%, 100% { opacity: 1 }
+}
+
+/* ---- A companion you can tap ---------------------------------------------
+   The bubble is absolutely positioned, so a kind word never moves the screen
+   underneath it. Where it opens depends on what would clip it: under the
+   companion by default, and toward the headline on the discovery hero, whose
+   banner hides anything that leaves it. */
+/* The stage hugs its companion and centres itself, so a bubble anchored to
+   its edge is anchored to the drawing rather than to the width of the screen. */
+.pet-stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: max-content;
+  max-width: 100%;
+  margin-inline: auto;
+}
+.pet-tap {
+  display: block;
+  padding: 0;
+  border-radius: var(--r-pill);
+}
+.pet-stage.is-cheering .pet-tap { animation: pet-hop .62s ease-out }
+
+.pet-speech {
+  position: absolute;
+  z-index: 4;
+  margin: 0;
+  pointer-events: none;
+}
+.pet-speech:empty { display: none }
+.pet-speech > span {
+  display: block;
+  position: relative;
+  width: max-content;
+  max-width: 200px;
+  padding: 9px 13px;
+  background: var(--bg-surface, #fff6df);
+  border: 1px solid var(--line-accent, #cbb6d4);
+  border-radius: 14px;
+  box-shadow: var(--shadow-float, 0 5px 20px #47304f33);
+  font-size: var(--fs-caption, .8125rem);
+  line-height: 1.45;
+  text-align: center;
+  animation: pet-pop .3s cubic-bezier(.2, 1.35, .5, 1) both;
+}
+/* The tail is the bubble's own corner, turned 45°, so it takes the bubble's
+   background in either theme without naming the colour twice. */
+.pet-speech > span::after {
+  content: '';
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: inherit;
+  border-left: 1px solid var(--line-accent, #cbb6d4);
+  border-top: 1px solid var(--line-accent, #cbb6d4);
+}
+
+/* Above, for the empty states, where the companion has a headline right under
+   it and open space over it. */
+.place-above .pet-speech { bottom: calc(100% - 4px); left: 50%; transform: translateX(-50%) }
+.place-above .pet-speech > span { max-width: 250px }
+.place-above .pet-speech > span::after { bottom: -6px; left: 50%; margin-left: -5px; transform: rotate(225deg) }
+
+.place-left .pet-speech { right: calc(100% - 4px); top: 44%; transform: translateY(-50%) }
+.place-left .pet-speech > span { max-width: 150px; text-align: right }
+.place-left .pet-speech > span::after { right: -6px; top: 50%; margin-top: -5px; transform: rotate(135deg) }
+
+@keyframes pet-pop {
+  from { opacity: 0; transform: scale(.86) translateY(5px) }
+  to { opacity: 1; transform: none }
+}
+@keyframes pet-hop {
+  0% { transform: translateY(0) }
+  30% { transform: translateY(-7px) rotate(-3deg) }
+  55% { transform: translateY(0) }
+  76% { transform: translateY(-3px) }
+  100% { transform: translateY(0) }
+}
+
+/* styles.css stops every animation in the app for a reduced-motion reader; the
+   rule is repeated here so the companions stay still even where only this
+   stylesheet is loaded. The bubble still appears and still says its piece. */
+@media (prefers-reduced-motion: reduce) {
+  .monty-mascot, .monty-mascot *, .pet-stage, .pet-stage * { animation: none !important }
+}
