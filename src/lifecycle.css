@@ -11,7 +11,12 @@
   --closing-bg: #f7d9c2;
   --shut: #6b5f57;
   --shut-bg: #e6ddd3;
-  --star: #c98a2e;
+  /* A rating is information, not decoration, so the star has to clear the 3:1
+     floor for meaningful graphics. The old gold sat at 2.47:1 on the app
+     background — legible to most people, and the first thing to disappear in
+     sunlight or on a cheap panel. This is the same gold, taken down until it
+     clears. */
+  --star: #a96f1c;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -20,7 +25,7 @@
     --closing: #f0b98c;
     --closing-bg: #4a3020;
     --shut: #a99c92;
-    --shut-bg: #372f3a;
+    --shut-bg: #39332d;
     --star: #e4b45f;
   }
 }
@@ -29,7 +34,7 @@
   --closing: #f0b98c;
   --closing-bg: #4a3020;
   --shut: #a99c92;
-  --shut-bg: #372f3a;
+  --shut-bg: #39332d;
   --star: #e4b45f;
 }
 

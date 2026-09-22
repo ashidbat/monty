@@ -18,9 +18,9 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --map-bg: #322640;
+    --map-bg: #362c26;
     --map-line: #ffffff10;
-    --map-road: #3d2f4d;
+    --map-road: #463b34;
     --map-water: #2c3a4c;
     --map-ring-fill: #cba2da1a;
     --map-pin: #cba2da;
@@ -29,9 +29,9 @@
 }
 
 :root[data-theme='dark'] {
-  --map-bg: #322640;
+  --map-bg: #362c26;
   --map-line: #ffffff10;
-  --map-road: #3d2f4d;
+  --map-road: #463b34;
   --map-water: #2c3a4c;
   --map-ring-fill: #cba2da1a;
   --map-pin: #cba2da;

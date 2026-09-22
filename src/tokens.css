@@ -85,23 +85,33 @@
 }
 
 /* ---- Colour: dark -------------------------------------------------------
-   An evening bakery rather than a generic grey inversion: the butters become
-   warm plum-browns and the lavenders deepen, so the brand still reads. */
+   An evening bakery rather than a generic grey inversion.
+
+   Light mode is a warm room with a lavender trim: the bread surfaces sit at
+   hue 44, the brand accents at 265. Dark mode used to put every surface at
+   275, which flattened that split and left the whole app violet — roughly the
+   complement of the ambers and browns that cooked food actually is, so bread
+   photographed on it reads ashen.
+
+   The bread surfaces are toasted browns here, and the lavender is kept for
+   exactly what it dresses in light mode: the awning, the chips, the pass, the
+   brand itself. The lightness ladder is unchanged, so every pair still clears
+   AA, at 5.75:1 in the narrowest case. */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --bg-stage: #171020;
-    --bg-stage-glow: #221830;
-    --bg-app: #241a2b;
-    --bg-surface: #2e2236;
-    --bg-surface-2: #382a41;
-    --bg-inset: #382a41;
+    --bg-stage: #16100d;
+    --bg-stage-glow: #251d18;
+    --bg-app: #281f1b;
+    --bg-surface: #332a24;
+    --bg-surface-2: #3e342e;
+    --bg-inset: #3e342e;
     --bg-accent: #3a2d4c;
     --bg-accent-strong: #4a3a5f;
-    --bg-accent-soft: #382a33;
+    --bg-accent-soft: #3b322b;
     --bg-peach: #4d352f;
     --bg-pass: #2b2039;
     --awning: #6b5286;
-    --bg-photo: #3b2d33;
+    --bg-photo: #3a322c;
     --bg-chip: #3a2d4c;
 
     --ink: #f7ecd9;
@@ -112,8 +122,8 @@
     --brand-ink: #cba2da;
     --on-brand: #fdf3e6;
 
-    --line: #423450;
-    --line-soft: #3d2f47;
+    --line: #4e443b;
+    --line-soft: #423a33;
     --line-accent: #4d3d5c;
     --line-dash: #4d3d5c;
 
@@ -128,24 +138,24 @@
     --shadow-card: 0 2px 5px #00000040;
     --shadow-float: 0 5px 20px #00000066;
     --phone-bezel: #3d2d43;
-    --phone-halo: #2a1f31;
+    --phone-halo: #281f1b;
   }
 }
 
 :root[data-theme='dark'] {
-  --bg-stage: #171020;
-  --bg-stage-glow: #221830;
-  --bg-app: #241a2b;
-  --bg-surface: #2e2236;
-  --bg-surface-2: #382a41;
-  --bg-inset: #382a41;
+  --bg-stage: #16100d;
+  --bg-stage-glow: #251d18;
+  --bg-app: #281f1b;
+  --bg-surface: #332a24;
+  --bg-surface-2: #3e342e;
+  --bg-inset: #3e342e;
   --bg-accent: #3a2d4c;
   --bg-accent-strong: #4a3a5f;
-  --bg-accent-soft: #382a33;
+  --bg-accent-soft: #3b322b;
   --bg-peach: #4d352f;
   --bg-pass: #2b2039;
   --awning: #6b5286;
-  --bg-photo: #3b2d33;
+  --bg-photo: #3a322c;
   --bg-chip: #3a2d4c;
 
   --ink: #f7ecd9;
@@ -156,8 +166,8 @@
   --brand-ink: #cba2da;
   --on-brand: #fdf3e6;
 
-  --line: #423450;
-  --line-soft: #3d2f47;
+  --line: #4e443b;
+  --line-soft: #423a33;
   --line-accent: #4d3d5c;
   --line-dash: #4d3d5c;
 
@@ -172,5 +182,5 @@
   --shadow-card: 0 2px 5px #00000040;
   --shadow-float: 0 5px 20px #00000066;
   --phone-bezel: #3d2d43;
-  --phone-halo: #2a1f31;
+  --phone-halo: #281f1b;
 }
