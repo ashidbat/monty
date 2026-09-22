@@ -2,6 +2,7 @@ import { build } from 'esbuild';
 import { mkdir, cp } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
+import { writeSite } from './site.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const output = path.join(root, 'dist');
@@ -19,5 +20,5 @@ await build({
   legalComments: 'eof',
 });
 await cp(path.join(root, 'public'), output, { recursive: true });
-await cp(path.join(root, 'index.html'), path.join(output, 'index.html'));
-console.log('Monty built in dist/.');
+const address = await writeSite(output);
+console.log(`Monty built in dist/, for ${address}.`);

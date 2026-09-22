@@ -6,10 +6,106 @@
     <meta name="color-scheme" content="light dark" />
     <meta name="theme-color" content="#E1F4F1" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#20110E" media="(prefers-color-scheme: dark)" />
-    <meta name="description" content="Monty — good food, a little closer. Interactive mobile application design prototype." />
-    <title>Monty · a little good, every day</title>
+    <meta name="description" content="A design prototype of a phone app for rescuing good food in Ulaanbaatar: shops sell what is left at the end of the day at a lower price, and you collect it. In English and Mongolian." />
+    <title>Monty — surplus food from Ulaanbaatar shops, a little closer</title>
     <link rel="icon" type="image/svg+xml" href="/assets/monty.svg" />
+    <!-- web:start — what a public address needs and a double-clicked file
+         cannot use. scripts/snapshot.mjs drops this whole block, so nothing in
+         "Open Monty.html" points at a server that is not there. The absolute
+         addresses are written in at build time by scripts/site.mjs, which is
+         also where the address itself comes from. -->
+    <link rel="canonical" href="%SITE_URL%/" />
+    <!-- Let the search result carry the picture, not just a line of text. -->
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+
+    <!-- Installing it on a phone: the manifest names it and hands over the
+         icons, and the two capable flags are what make "Add to Home Screen"
+         open Monty on its own rather than inside a browser tab. The status bar
+         is left to the theme-color tags above, which src/preferences.js keeps
+         on whichever theme the reader has chosen. -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Monty" />
+    <meta name="application-name" content="Monty" />
+
+    <!-- Pasted into a chat, which is how a phone link actually travels. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Monty" />
+    <meta property="og:title" content="Monty — good food, a little closer" />
+    <meta property="og:description" content="Shops in Ulaanbaatar sell the good food they still have at closing time. Find it near you, pay, and pick it up. An interactive design prototype in English and Mongolian." />
+    <meta property="og:url" content="%SITE_URL%/" />
+    <meta property="og:image" content="%SITE_URL%/assets/monty-card.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="The Monty loaf, a smiling slice of bread on a lilac tile." />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale:alternate" content="mn_MN" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- Written for a search engine reading the page rather than rendering it.
+         It says prototype in as many words: nobody should arrive expecting to
+         buy real bread. -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Monty",
+        "url": "%SITE_URL%/",
+        "applicationCategory": "FoodApplication",
+        "operatingSystem": "Any device with a web browser",
+        "browserRequirements": "Requires JavaScript",
+        "inLanguage": ["en", "mn"],
+        "isAccessibleForFree": true,
+        "image": "%SITE_URL%/assets/monty-card.png",
+        "description": "An interactive design prototype of a surplus food pickup app for Ulaanbaatar. Shops list the good food they have left at the end of the day, a customer reserves and pays for it, and collects it from the counter within a pickup window. Demo data and a simulated payment: no money moves and no shop is contacted."
+      }
+    </script>
+
+    <!-- Keeps a copy of Monty on the phone, so a tunnel does not end the
+         visit and Android installs it as an application rather than a
+         bookmark. public/sw.js explains what it will and will not answer from
+         that copy. It lives in this block because a service worker needs an
+         address to be served from: opening the offline file never registers
+         one, and neither does a browser that has no room for the idea. -->
+    <script>
+      if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
+    </script>
+    <!-- web:end -->
     <link rel="stylesheet" href="/app.css" />
+    <style>
+      /* The boot screen, inline so it paints on the first frame: on a phone
+         over mobile data the bundle below is the slow part, and a reader who
+         arrived from a search result should not be looking at a blank page
+         while it arrives. React replaces all of it when it mounts.
+
+         It is also the whole page for anyone who never runs the script — a
+         search engine that does not render, a browser with JavaScript off —
+         which is why it says what Monty is in plain sentences. The colours are
+         written out rather than taken from tokens.css so this still reads if
+         the stylesheet is the request that fails. */
+      .boot { min-height: 100svh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; padding: 32px 24px; box-sizing: border-box; text-align: center; background: #e1f4f1; color: #183937; font-family: 'Nunito Sans', system-ui, -apple-system, 'Segoe UI', sans-serif; }
+      .boot svg { width: 84px; height: 84px; }
+      .boot h1 { font-family: 'Fraunces', Georgia, serif; font-size: 1.75rem; line-height: 1.2; margin: 0; max-width: 18ch; }
+      .boot p { margin: 0; max-width: 46ch; font-size: 0.9375rem; line-height: 1.6; color: #436563; }
+      .boot small { font-size: 0.8125rem; color: #436563; }
+      @media (prefers-color-scheme: dark) {
+        .boot { background: #20110e; color: #fbeebc; }
+        .boot p, .boot small { color: #e3c9a8; }
+      }
+    </style>
   </head>
-  <body><div id="root"></div><script type="module" src="/app.js"></script></body>
+  <body>
+    <div id="root">
+      <div class="boot">
+        <svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><rect width="100" height="100" rx="27" fill="#E6DDF3"/><path d="M24 43c-10-22 12-29 26-19 16-10 38-2 27 19v31c-11 7-42 7-53 0Z" fill="#F4C9AF" stroke="#47304F" stroke-width="3"/><path d="M38 44v6m24-6v6m-18 9q6 6 12 0" fill="none" stroke="#47304F" stroke-linecap="round" stroke-width="3"/></svg>
+        <h1>Monty — good food, a little closer</h1>
+        <p>Bakeries, cafés and shops around Ulaanbaatar sell the good food they still have at closing time, at a lower price. Monty shows you what is left near you, takes the payment, and gives you a QR pass to collect it at the counter.</p>
+        <p><small>An interactive design prototype, in English and Mongolian. The shops, the food and the payment are demo data: no money moves and no order reaches a real counter.</small></p>
+        <noscript><p><strong>Monty needs JavaScript to run.</strong> Turn it on for this page, or open it in another browser, and the prototype starts on its own.</p></noscript>
+      </div>
+    </div>
+    <script type="module" src="/app.js"></script>
+  </body>
 </html>

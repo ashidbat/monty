@@ -4,11 +4,14 @@ import { context } from 'esbuild';
 import { cp, mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import { projectRoot, servePreview } from './static.mjs';
+import { writeSite } from './site.mjs';
 
 const output = path.join(projectRoot, 'dist');
 await mkdir(output, { recursive: true });
 await cp(path.join(projectRoot, 'public'), output, { recursive: true });
-await cp(path.join(projectRoot, 'index.html'), path.join(output, 'index.html'));
+// Through writeSite rather than a copy, so the preview has the same canonical
+// address, robots.txt and sitemap the deployment will.
+await writeSite(output);
 
 const builder = await context({
   absWorkingDir: projectRoot,

@@ -1,0 +1,20 @@
+{
+  "id": "/",
+  "name": "Monty — good food, a little closer",
+  "short_name": "Monty",
+  "description": "A design prototype of a surplus food pickup app for Ulaanbaatar. Shops list the good food they have left at closing time; you reserve it, pay, and collect it at the counter.",
+  "lang": "en",
+  "dir": "ltr",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#e1f4f1",
+  "theme_color": "#e1f4f1",
+  "categories": ["food", "shopping", "lifestyle"],
+  "icons": [
+    { "src": "/assets/monty.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "/assets/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/assets/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/assets/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

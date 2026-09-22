@@ -110,6 +110,8 @@ src/components/Countdown.jsx: a pickup window, counted down.
 src/components/Rating.jsx: shop scores and rating a collected order.
 src/lifecycle.css: the clock, the payment sheet and the trust marks.
 public/assets/: local food photographs, font files, licenses and source credits.
+public/manifest.webmanifest: the name and icons a phone uses for the home screen.
+scripts/: the build, the offline snapshot, the app icons and the web address.
 dist/: compiled preview files.
 tests/: automated checks for order rules, the catalogue, distances and QR encoding.
 
@@ -142,6 +144,7 @@ Then open http://127.0.0.1:4173
 If Windows PowerShell blocks npm.ps1, use npm.cmd instead of npm in these commands.
 
   npm run build   rebuilds dist/ AND regenerates "Open Monty.html"
+  npm run icons   redraws the app icons from public/assets/monty.svg
   npm run snapshot regenerates "Open Monty.html" only
   npm test        runs the order-rule, QR and translation checks
   npm run smoke   renders every screen in both languages and reports failures
@@ -152,6 +155,26 @@ it in step with the source.
 
 A native iPhone/Android application, production backend and database are still
 future work.
+
+ONTO A REAL PHONE, AND ONTO THE WEB
+The prototype is a web page, so the way onto a phone is to put it at a web
+address and open that address on the phone. README.md has the steps. The folder
+is already set up for Vercel: one import, one deploy, and the link opens in any
+phone browser with nothing to install and no app store in the way.
+
+With it open on the phone, Share > Add to Home Screen on iOS, or Install app in
+Chrome's menu on Android, gives it the Monty loaf as an icon and opens it full
+screen. It is the same web page either way.
+
+Once a phone has opened it once, it keeps working with no signal at all, the
+same way the double-click file does. Monty decides everything in the browser,
+so there is nothing for a dead connection to interrupt.
+
+Being on the web and being findable in Google are two different things. A new
+address has to be crawled before it appears at all, which takes days rather
+than minutes, and searching the single word "monty" will not find it: that word
+belongs to many older and larger things. README.md explains what to submit to
+Google Search Console, and what the prototype can realistically be found by.
 
 CONNECTING QPAY FOR REAL
 Everything the integration needs is already built and designed; only the four

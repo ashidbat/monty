@@ -54,6 +54,13 @@ let html = await readFile(path.join(root, 'index.html'), 'utf8');
 const stylesheet = /<link\b[^>]*href=["']\/app\.css["'][^>]*>/;
 const script = /<script\b[^>]*src=["']\/app\.js["'][^>]*>\s*<\/script>/;
 if (!stylesheet.test(html) || !script.test(html)) throw new Error('index.html must reference /app.css and /app.js.');
+
+/* The canonical address, the manifest and the share card are all addresses on
+   a server. A double-clicked file has none, so the block that holds them comes
+   out: what is left is the application, and nothing pointing at a 404. */
+const webOnly = /[ \t]*<!-- web:start[\s\S]*?web:end -->\n?/;
+if (!webOnly.test(html)) throw new Error('index.html must mark its web-only tags with <!-- web:start --> and <!-- web:end -->.');
+html = html.replace(webOnly, '');
 html = html.replace(stylesheet, () => `<style>${css}</style>`);
 html = html.replace(script, () => `<script>${js}</script>`);
 
