@@ -146,7 +146,7 @@ s, del { color: var(--ink-muted) }
   border: 1px solid var(--line-accent);
   border-radius: 34px;
   overflow: hidden;
-  box-shadow: 0 22px 55px -28px #53355f66;
+  box-shadow: 0 22px 55px -28px #00000059;
 }
 .app-header {
   flex-shrink: 0;
@@ -160,7 +160,7 @@ s, del { color: var(--ink-muted) }
    header separates from the content only when something is behind it. */
 .customer-app.is-scrolled .app-header {
   border-bottom-color: var(--line);
-  box-shadow: 0 4px 14px -10px #47304f55;
+  box-shadow: 0 4px 14px -10px #00000047;
 }
 /* On discover the location row sits under the brand row, so the header gives
    back some of its own bottom padding. */
@@ -243,7 +243,7 @@ s, del { color: var(--ink-muted) }
   flex: 1;
   background: var(--awning);
   border-radius: 0 0 50% 50%;
-  border-right: 1px solid #9676aa50;
+  border-right: 1px solid #00000033;
 }
 .awning i:nth-child(even) { background: var(--bg-accent-strong) }
 .bakery-message { display: flex; align-items: center; justify-content: space-between; gap: 6px }
@@ -918,7 +918,7 @@ s, del { color: var(--ink-muted) }
   background: var(--bg-surface);
   border-radius: 13px 13px 0 0;
   position: relative;
-  filter: drop-shadow(0 7px 10px #6744730c);
+  filter: drop-shadow(0 7px 10px #00000014);
   padding-bottom: 5px;
 }
 .pickup-pass:after {
@@ -1269,10 +1269,10 @@ s, del { color: var(--ink-muted) }
   padding: 22px;
   background: var(--bg-surface);
   color: var(--ink);
-  box-shadow: 0 25px 100px #37223d40;
+  box-shadow: 0 25px 100px #00000045;
   max-height: 80dvh;
 }
-.monty-modal::backdrop { background: #36223970; backdrop-filter: blur(3px) }
+.monty-modal::backdrop { background: #1a0d0878; backdrop-filter: blur(3px) }
 .modal-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px }
 .modal-heading h2 { font-family: var(--font-display); font-size: var(--fs-2xl); font-weight: 500; line-height: 1.15 }
 .modal-description { font-size: var(--fs-base); line-height: 1.65; color: var(--ink-muted); margin-bottom: 20px }

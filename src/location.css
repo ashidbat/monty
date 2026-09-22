@@ -18,24 +18,24 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --map-bg: #362c26;
+    --map-bg: #33231e;
     --map-line: #ffffff10;
-    --map-road: #463b34;
-    --map-water: #2c3a4c;
-    --map-ring-fill: #cba2da1a;
-    --map-pin: #cba2da;
-    --map-you: #8fb4e4;
+    --map-road: #48352e;
+    --map-water: #344551;
+    --map-ring-fill: #ffc27021;
+    --map-pin: #ffc270;
+    --map-you: #7fb2e0;
   }
 }
 
 :root[data-theme='dark'] {
-  --map-bg: #362c26;
+  --map-bg: #33231e;
   --map-line: #ffffff10;
-  --map-road: #463b34;
-  --map-water: #2c3a4c;
-  --map-ring-fill: #cba2da1a;
-  --map-pin: #cba2da;
-  --map-you: #8fb4e4;
+  --map-road: #48352e;
+  --map-water: #344551;
+  --map-ring-fill: #ffc27021;
+  --map-pin: #ffc270;
+  --map-you: #7fb2e0;
 }
 
 /* ========================================================================
